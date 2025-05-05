@@ -1,26 +1,251 @@
+
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>anime-wave-viewer</title>
-    <meta name="description" content="Lovable Generated Project" />
-    <meta name="author" content="Lovable" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DonghuaWave - Home</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <h1>DonghuaWave</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html" class="active">Home</a></li>
+                    <li><a href="#" id="newReleases">New Releases</a></li>
+                    <li><a href="#" id="popular">Popular</a></li>
+                    <li><a href="#" id="genres">Genres</a></li>
+                </ul>
+            </nav>
+            <div class="user-actions">
+                <div class="search-box">
+                    <input type="text" placeholder="Search...">
+                    <button><i class="fas fa-search"></i></button>
+                </div>
+                <a href="login.html" class="login-btn">Login</a>
+            </div>
+        </div>
+    </header>
 
-    <meta property="og:title" content="anime-wave-viewer" />
-    <meta property="og:description" content="Lovable Generated Project" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <main>
+        <div class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h2>Discover the Best Donghua</h2>
+                    <p>Stream the latest and most popular Chinese animations</p>
+                    <a href="#featured" class="btn-primary">Browse Now</a>
+                </div>
+            </div>
+        </div>
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-  </head>
+        <section id="featured" class="donghua-grid-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Featured Donghua</h2>
+                    <a href="#" class="view-all">View All</a>
+                </div>
+                <div class="donghua-grid">
+                    <!-- Donghua items will be loaded here by JavaScript -->
+                </div>
+            </div>
+        </section>
 
-  <body>
-    <div id="root"></div>
-    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+        <section class="donghua-grid-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>New Releases</h2>
+                    <a href="#" class="view-all">View All</a>
+                </div>
+                <div class="donghua-grid">
+                    <!-- Donghua items will be loaded here by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <section class="donghua-grid-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Popular This Week</h2>
+                    <a href="#" class="view-all">View All</a>
+                </div>
+                <div class="donghua-grid">
+                    <!-- Donghua items will be loaded here by JavaScript -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h2>DonghuaWave</h2>
+                    <p>Your premier destination for Chinese animation</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h3>Navigation</h3>
+                        <ul>
+                            <li><a href="index.html">Home</a></li>
+                            <li><a href="#">New Releases</a></li>
+                            <li><a href="#">Popular</a></li>
+                            <li><a href="#">Genres</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h3>Account</h3>
+                        <ul>
+                            <li><a href="login.html">Login</a></li>
+                            <li><a href="#">Register</a></li>
+                            <li><a href="#">Forgot Password</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h3>Legal</h3>
+                        <ul>
+                            <li><a href="#">Terms of Service</a></li>
+                            <li><a href="#">Privacy Policy</a></li>
+                            <li><a href="#">Copyright</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 DonghuaWave. All rights reserved.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Sample donghua data - in a real app this would come from a database
+            const donghuaData = [
+                {
+                    id: 1,
+                    title: "The King's Avatar",
+                    poster: "https://via.placeholder.com/300x450?text=The+King's+Avatar",
+                    rating: 4.8,
+                    year: 2019
+                },
+                {
+                    id: 2,
+                    title: "Soul Land",
+                    poster: "https://via.placeholder.com/300x450?text=Soul+Land",
+                    rating: 4.7,
+                    year: 2018
+                },
+                {
+                    id: 3,
+                    title: "Battle Through The Heavens",
+                    poster: "https://via.placeholder.com/300x450?text=Battle+Through+The+Heavens",
+                    rating: 4.5,
+                    year: 2017
+                },
+                {
+                    id: 4,
+                    title: "Tales of Demons and Gods",
+                    poster: "https://via.placeholder.com/300x450?text=Tales+of+Demons+and+Gods",
+                    rating: 4.6,
+                    year: 2020
+                },
+                {
+                    id: 5,
+                    title: "Martial Universe",
+                    poster: "https://via.placeholder.com/300x450?text=Martial+Universe",
+                    rating: 4.3,
+                    year: 2018
+                },
+                {
+                    id: 6,
+                    title: "A Record of a Mortal's Journey to Immortality",
+                    poster: "https://via.placeholder.com/300x450?text=A+Record+of+a+Mortal's+Journey",
+                    rating: 4.4,
+                    year: 2020
+                }
+            ];
+
+            // Function to create donghua cards
+            function createDonghuaCard(donghua) {
+                return `
+                    <div class="donghua-card" data-id="${donghua.id}">
+                        <div class="poster">
+                            <img src="${donghua.poster}" alt="${donghua.title}">
+                            <div class="overlay">
+                                <div class="rating">
+                                    <i class="fas fa-star"></i> ${donghua.rating}
+                                </div>
+                                <div class="year">${donghua.year}</div>
+                                <a href="donghua.html?id=${donghua.id}" class="btn-watch">Watch Now</a>
+                            </div>
+                        </div>
+                        <div class="donghua-info">
+                            <h3>${donghua.title}</h3>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Populate the donghua grid
+            const donghuaGrids = document.querySelectorAll('.donghua-grid');
+            donghuaGrids.forEach(grid => {
+                let gridHTML = '';
+                donghuaData.forEach(donghua => {
+                    gridHTML += createDonghuaCard(donghua);
+                });
+                grid.innerHTML = gridHTML;
+            });
+
+            // Add click event on donghua cards
+            const donghuaCards = document.querySelectorAll('.donghua-card');
+            donghuaCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const id = card.getAttribute('data-id');
+                    window.location.href = `donghua.html?id=${id}`;
+                });
+            });
+
+            // Search functionality
+            const searchBox = document.querySelector('.search-box input');
+            const searchButton = document.querySelector('.search-box button');
+
+            function performSearch() {
+                const searchTerm = searchBox.value.toLowerCase();
+                if (searchTerm.trim() !== '') {
+                    const filteredDonghua = donghuaData.filter(donghua => 
+                        donghua.title.toLowerCase().includes(searchTerm)
+                    );
+                    
+                    const firstGrid = document.querySelector('.donghua-grid');
+                    firstGrid.innerHTML = '';
+                    
+                    if (filteredDonghua.length > 0) {
+                        filteredDonghua.forEach(donghua => {
+                            firstGrid.innerHTML += createDonghuaCard(donghua);
+                        });
+                    } else {
+                        firstGrid.innerHTML = '<p class="no-results">No results found.</p>';
+                    }
+                }
+            }
+
+            searchButton.addEventListener('click', performSearch);
+            searchBox.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+        });
+    </script>
+</body>
 </html>

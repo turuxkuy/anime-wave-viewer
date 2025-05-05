@@ -1,0 +1,700 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DonghuaWave - Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="admin-page">
+    <div class="admin-sidebar">
+        <div class="admin-logo">
+            <a href="index.html">
+                <h1>DonghuaWave</h1>
+                <span>Admin Panel</span>
+            </a>
+        </div>
+        <nav class="admin-nav">
+            <ul>
+                <li class="active"><a href="#dashboard"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                <li><a href="#donghua-manage"><i class="fas fa-film"></i> Donghua</a></li>
+                <li><a href="#episodes-manage"><i class="fas fa-play-circle"></i> Episodes</a></li>
+                <li><a href="#users-manage"><i class="fas fa-users"></i> Users</a></li>
+                <li><a href="#settings-manage"><i class="fas fa-cog"></i> Settings</a></li>
+            </ul>
+        </nav>
+        <div class="admin-sidebar-footer">
+            <button id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </div>
+
+    <main class="admin-content">
+        <header class="admin-header">
+            <div class="admin-header-left">
+                <button class="toggle-sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2>Admin Dashboard</h2>
+            </div>
+            <div class="admin-header-right">
+                <div class="admin-search">
+                    <input type="text" placeholder="Search...">
+                    <button><i class="fas fa-search"></i></button>
+                </div>
+                <div class="admin-user">
+                    <img src="https://via.placeholder.com/40" alt="Admin" class="avatar">
+                    <span>Admin</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-container">
+            <!-- Dashboard Overview -->
+            <section id="dashboard" class="admin-section active">
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-film"></i></div>
+                        <div class="stat-data">
+                            <h3>Total Donghua</h3>
+                            <p class="stat-number">78</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-play-circle"></i></div>
+                        <div class="stat-data">
+                            <h3>Total Episodes</h3>
+                            <p class="stat-number">1,245</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        <div class="stat-data">
+                            <h3>Total Users</h3>
+                            <p class="stat-number">5,327</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-crown"></i></div>
+                        <div class="stat-data">
+                            <h3>VIP Users</h3>
+                            <p class="stat-number">842</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-charts">
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3>User Activity</h3>
+                            <div class="chart-filters">
+                                <button class="active">Week</button>
+                                <button>Month</button>
+                                <button>Year</button>
+                            </div>
+                        </div>
+                        <div class="chart-placeholder">
+                            <!-- Chart would render here in real implementation -->
+                            <div class="mockup-chart">
+                                <div class="chart-bar" style="height: 60%"></div>
+                                <div class="chart-bar" style="height: 80%"></div>
+                                <div class="chart-bar" style="height: 40%"></div>
+                                <div class="chart-bar" style="height: 70%"></div>
+                                <div class="chart-bar" style="height: 50%"></div>
+                                <div class="chart-bar" style="height: 90%"></div>
+                                <div class="chart-bar" style="height: 75%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3>Popular Donghua</h3>
+                            <div class="chart-filters">
+                                <button class="active">Week</button>
+                                <button>Month</button>
+                                <button>All Time</button>
+                            </div>
+                        </div>
+                        <div class="popular-donghua-list">
+                            <div class="popular-item">
+                                <img src="https://via.placeholder.com/80x45?text=KA" alt="The King's Avatar">
+                                <div class="popular-item-info">
+                                    <h4>The King's Avatar</h4>
+                                    <div class="popular-item-stats">
+                                        <span><i class="fas fa-eye"></i> 24.5K</span>
+                                        <span><i class="fas fa-heart"></i> 4.8K</span>
+                                    </div>
+                                </div>
+                                <div class="popular-item-rank">#1</div>
+                            </div>
+                            <div class="popular-item">
+                                <img src="https://via.placeholder.com/80x45?text=SL" alt="Soul Land">
+                                <div class="popular-item-info">
+                                    <h4>Soul Land</h4>
+                                    <div class="popular-item-stats">
+                                        <span><i class="fas fa-eye"></i> 19.2K</span>
+                                        <span><i class="fas fa-heart"></i> 3.7K</span>
+                                    </div>
+                                </div>
+                                <div class="popular-item-rank">#2</div>
+                            </div>
+                            <div class="popular-item">
+                                <img src="https://via.placeholder.com/80x45?text=BTTH" alt="Battle Through The Heavens">
+                                <div class="popular-item-info">
+                                    <h4>Battle Through The Heavens</h4>
+                                    <div class="popular-item-stats">
+                                        <span><i class="fas fa-eye"></i> 15.8K</span>
+                                        <span><i class="fas fa-heart"></i> 3.1K</span>
+                                    </div>
+                                </div>
+                                <div class="popular-item-rank">#3</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-activities">
+                    <h3>Recent Activities</h3>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon"><i class="fas fa-user-plus"></i></div>
+                            <div class="activity-content">
+                                <p><strong>New User Registered</strong> - user2963 joined the platform</p>
+                                <span class="activity-time">2 minutes ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon"><i class="fas fa-crown"></i></div>
+                            <div class="activity-content">
+                                <p><strong>VIP Upgrade</strong> - user1587 purchased VIP subscription</p>
+                                <span class="activity-time">45 minutes ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon"><i class="fas fa-film"></i></div>
+                            <div class="activity-content">
+                                <p><strong>New Donghua Added</strong> - "Perfect World" with 12 episodes</p>
+                                <span class="activity-time">3 hours ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon"><i class="fas fa-play-circle"></i></div>
+                            <div class="activity-content">
+                                <p><strong>New Episode Added</strong> - Soul Land S4 E24 is now available</p>
+                                <span class="activity-time">Yesterday</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Donghua Management -->
+            <section id="donghua-manage" class="admin-section">
+                <div class="section-header">
+                    <h2>Donghua Management</h2>
+                    <button class="btn-primary" id="add-donghua-btn">
+                        <i class="fas fa-plus"></i> Add New Donghua
+                    </button>
+                </div>
+
+                <div class="admin-filter-bar">
+                    <div class="filter-group">
+                        <label>Status:</label>
+                        <select>
+                            <option value="all">All</option>
+                            <option value="ongoing">Ongoing</option>
+                            <option value="completed">Completed</option>
+                            <option value="upcoming">Upcoming</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Genre:</label>
+                        <select>
+                            <option value="all">All Genres</option>
+                            <option value="action">Action</option>
+                            <option value="adventure">Adventure</option>
+                            <option value="fantasy">Fantasy</option>
+                            <option value="martial-arts">Martial Arts</option>
+                            <option value="xianxia">Xianxia</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Sort By:</label>
+                        <select>
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="a-z">Title A-Z</option>
+                            <option value="popular">Most Popular</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox"></th>
+                                <th>ID</th>
+                                <th>Poster</th>
+                                <th>Title</th>
+                                <th>Episodes</th>
+                                <th>Status</th>
+                                <th>Rating</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td>1</td>
+                                <td><img src="https://via.placeholder.com/60x90?text=KA" alt="The King's Avatar"></td>
+                                <td>The King's Avatar</td>
+                                <td>24</td>
+                                <td><span class="status-badge ongoing">Ongoing</span></td>
+                                <td>4.8</td>
+                                <td class="actions-cell">
+                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-trash"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-list"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td>2</td>
+                                <td><img src="https://via.placeholder.com/60x90?text=SL" alt="Soul Land"></td>
+                                <td>Soul Land</td>
+                                <td>183</td>
+                                <td><span class="status-badge ongoing">Ongoing</span></td>
+                                <td>4.7</td>
+                                <td class="actions-cell">
+                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-trash"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-list"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td>3</td>
+                                <td><img src="https://via.placeholder.com/60x90?text=BTTH" alt="Battle Through The Heavens"></td>
+                                <td>Battle Through The Heavens</td>
+                                <td>48</td>
+                                <td><span class="status-badge completed">Completed</span></td>
+                                <td>4.5</td>
+                                <td class="actions-cell">
+                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-trash"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-list"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="pagination">
+                    <button class="pagination-prev" disabled><i class="fas fa-chevron-left"></i></button>
+                    <div class="pagination-numbers">
+                        <button class="active">1</button>
+                        <button>2</button>
+                        <button>3</button>
+                        <span>...</span>
+                        <button>12</button>
+                    </div>
+                    <button class="pagination-next"><i class="fas fa-chevron-right"></i></button>
+                </div>
+
+                <!-- Add Donghua Modal (Hidden by default) -->
+                <div class="admin-modal" id="add-donghua-modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Add New Donghua</h3>
+                            <button class="close-modal"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="add-donghua-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="title">Title</label>
+                                        <input type="text" id="title" name="title" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="original_title">Original Title (Chinese)</label>
+                                        <input type="text" id="original_title" name="original_title">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group file-upload">
+                                        <label>Poster Image</label>
+                                        <div class="upload-area">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            <p>Click to upload or drag and drop</p>
+                                            <span>JPG, PNG or GIF (Max 2MB)</span>
+                                            <input type="file" id="poster" name="poster" accept="image/*">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="synopsis">Synopsis</label>
+                                        <textarea id="synopsis" name="synopsis" rows="4" required></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="genres">Genres</label>
+                                        <select id="genres" name="genres" multiple required>
+                                            <option value="action">Action</option>
+                                            <option value="adventure">Adventure</option>
+                                            <option value="comedy">Comedy</option>
+                                            <option value="fantasy">Fantasy</option>
+                                            <option value="martial-arts">Martial Arts</option>
+                                            <option value="romance">Romance</option>
+                                            <option value="sci-fi">Sci-Fi</option>
+                                            <option value="xianxia">Xianxia</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="status">Status</label>
+                                        <select id="status" name="status" required>
+                                            <option value="ongoing">Ongoing</option>
+                                            <option value="completed">Completed</option>
+                                            <option value="upcoming">Upcoming</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="year">Release Year</label>
+                                        <input type="number" id="year" name="year" min="1980" max="2030" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="studio">Studio</label>
+                                        <input type="text" id="studio" name="studio">
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="button" class="btn-secondary cancel-modal">Cancel</button>
+                                    <button type="submit" class="btn-primary">Add Donghua</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Episodes Management -->
+            <section id="episodes-manage" class="admin-section">
+                <div class="section-header">
+                    <h2>Episodes Management</h2>
+                    <button class="btn-primary" id="add-episode-btn">
+                        <i class="fas fa-plus"></i> Add New Episode
+                    </button>
+                </div>
+
+                <div class="admin-filter-bar">
+                    <div class="filter-group">
+                        <label>Donghua:</label>
+                        <select>
+                            <option value="all">All Donghua</option>
+                            <option value="1">The King's Avatar</option>
+                            <option value="2">Soul Land</option>
+                            <option value="3">Battle Through The Heavens</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Season:</label>
+                        <select>
+                            <option value="all">All Seasons</option>
+                            <option value="1">Season 1</option>
+                            <option value="2">Season 2</option>
+                            <option value="3">Season 3</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Sort By:</label>
+                        <select>
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox"></th>
+                                <th>ID</th>
+                                <th>Thumbnail</th>
+                                <th>Donghua</th>
+                                <th>Episode</th>
+                                <th>Title</th>
+                                <th>Duration</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td>101</td>
+                                <td><img src="https://via.placeholder.com/80x45?text=KA-E12" alt="Episode thumbnail"></td>
+                                <td>The King's Avatar</td>
+                                <td>S2 E12</td>
+                                <td>Glory's Final Battle</td>
+                                <td>24:15</td>
+                                <td><span class="status-badge active">Active</span></td>
+                                <td class="actions-cell">
+                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-trash"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-play"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td>102</td>
+                                <td><img src="https://via.placeholder.com/80x45?text=SL-E183" alt="Episode thumbnail"></td>
+                                <td>Soul Land</td>
+                                <td>S3 E183</td>
+                                <td>Spirit Fusion</td>
+                                <td>22:45</td>
+                                <td><span class="status-badge active">Active</span></td>
+                                <td class="actions-cell">
+                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-trash"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-play"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td>103</td>
+                                <td><img src="https://via.placeholder.com/80x45?text=BTTH-E48" alt="Episode thumbnail"></td>
+                                <td>Battle Through The Heavens</td>
+                                <td>S4 E48</td>
+                                <td>Final Flame</td>
+                                <td>25:30</td>
+                                <td><span class="status-badge inactive">Inactive</span></td>
+                                <td class="actions-cell">
+                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-trash"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-play"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="pagination">
+                    <button class="pagination-prev" disabled><i class="fas fa-chevron-left"></i></button>
+                    <div class="pagination-numbers">
+                        <button class="active">1</button>
+                        <button>2</button>
+                        <button>3</button>
+                        <span>...</span>
+                        <button>28</button>
+                    </div>
+                    <button class="pagination-next"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </section>
+
+            <!-- Users Management -->
+            <section id="users-manage" class="admin-section">
+                <div class="section-header">
+                    <h2>Users Management</h2>
+                    <button class="btn-primary" id="add-user-btn">
+                        <i class="fas fa-plus"></i> Add New User
+                    </button>
+                </div>
+
+                <div class="admin-filter-bar">
+                    <div class="filter-group">
+                        <label>Status:</label>
+                        <select>
+                            <option value="all">All Users</option>
+                            <option value="active">Active</option>
+                            <option value="suspended">Suspended</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Type:</label>
+                        <select>
+                            <option value="all">All Types</option>
+                            <option value="free">Free</option>
+                            <option value="vip">VIP</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Sort By:</label>
+                        <select>
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox"></th>
+                                <th>ID</th>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td>1001</td>
+                                <td>
+                                    <div class="user-cell">
+                                        <img src="https://via.placeholder.com/32" alt="User Avatar">
+                                        <span>user1234</span>
+                                    </div>
+                                </td>
+                                <td>user1234@example.com</td>
+                                <td><span class="type-badge vip">VIP</span></td>
+                                <td><span class="status-badge active">Active</span></td>
+                                <td>May 1, 2025</td>
+                                <td class="actions-cell">
+                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-ban"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td>1002</td>
+                                <td>
+                                    <div class="user-cell">
+                                        <img src="https://via.placeholder.com/32" alt="User Avatar">
+                                        <span>animefan99</span>
+                                    </div>
+                                </td>
+                                <td>animefan99@example.com</td>
+                                <td><span class="type-badge free">Free</span></td>
+                                <td><span class="status-badge active">Active</span></td>
+                                <td>Apr 28, 2025</td>
+                                <td class="actions-cell">
+                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-ban"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td>1003</td>
+                                <td>
+                                    <div class="user-cell">
+                                        <img src="https://via.placeholder.com/32" alt="User Avatar">
+                                        <span>donghua_lover</span>
+                                    </div>
+                                </td>
+                                <td>donghua_lover@example.com</td>
+                                <td><span class="type-badge free">Free</span></td>
+                                <td><span class="status-badge suspended">Suspended</span></td>
+                                <td>Apr 22, 2025</td>
+                                <td class="actions-cell">
+                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-check-circle"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="pagination">
+                    <button class="pagination-prev" disabled><i class="fas fa-chevron-left"></i></button>
+                    <div class="pagination-numbers">
+                        <button class="active">1</button>
+                        <button>2</button>
+                        <button>3</button>
+                        <span>...</span>
+                        <button>42</button>
+                    </div>
+                    <button class="pagination-next"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Toggle sidebar
+            const toggleSidebar = document.querySelector('.toggle-sidebar');
+            const adminBody = document.querySelector('.admin-page');
+            
+            toggleSidebar.addEventListener('click', () => {
+                adminBody.classList.toggle('sidebar-collapsed');
+            });
+
+            // Tab navigation
+            const navLinks = document.querySelectorAll('.admin-nav a');
+            const adminSections = document.querySelectorAll('.admin-section');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links and sections
+                    navLinks.forEach(l => l.parentElement.classList.remove('active'));
+                    adminSections.forEach(s => s.classList.remove('active'));
+                    
+                    // Add active class to clicked link
+                    link.parentElement.classList.add('active');
+                    
+                    // Show corresponding section
+                    const targetId = link.getAttribute('href').substring(1);
+                    document.getElementById(targetId).classList.add('active');
+                });
+            });
+
+            // Modal functionality
+            const addDonghuaBtn = document.getElementById('add-donghua-btn');
+            const addDonghuaModal = document.getElementById('add-donghua-modal');
+            const closeModal = document.querySelector('.close-modal');
+            const cancelModal = document.querySelector('.cancel-modal');
+            
+            addDonghuaBtn.addEventListener('click', () => {
+                addDonghuaModal.classList.add('active');
+            });
+            
+            closeModal.addEventListener('click', () => {
+                addDonghuaModal.classList.remove('active');
+            });
+            
+            cancelModal.addEventListener('click', () => {
+                addDonghuaModal.classList.remove('active');
+            });
+
+            // Handle modal form submission
+            const addDonghuaForm = document.getElementById('add-donghua-form');
+            addDonghuaForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                // Simulate form submission
+                setTimeout(() => {
+                    addDonghuaModal.classList.remove('active');
+                    
+                    // Show success message (in a real app)
+                    alert('Donghua added successfully!');
+                }, 1000);
+            });
+
+            // Handle logout
+            const logoutBtn = document.getElementById('logout-btn');
+            logoutBtn.addEventListener('click', () => {
+                // Simulate logout
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 500);
+            });
+        });
+    </script>
+</body>
+</html>
