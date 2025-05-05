@@ -7,6 +7,7 @@
     <title>DonghuaWave - User Dashboard</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <header>
@@ -29,8 +30,8 @@
                 </div>
                 <div class="user-menu">
                     <button class="user-menu-btn">
-                        <img src="https://via.placeholder.com/40" alt="User" class="avatar">
-                        <span>User</span>
+                        <img src="https://via.placeholder.com/40" alt="User" class="avatar" id="user-avatar">
+                        <span id="user-name">User</span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
                     <div class="user-dropdown">
@@ -52,10 +53,10 @@
                 <div class="dashboard-sidebar">
                     <div class="user-info">
                         <img src="https://via.placeholder.com/100" alt="User Avatar" class="user-avatar">
-                        <h2>User Name</h2>
-                        <p class="user-email">user@example.com</p>
-                        <div class="user-status free">Free User</div>
-                        <button class="btn-upgrade">Upgrade to VIP</button>
+                        <h2 id="sidebar-username">User Name</h2>
+                        <p class="user-email" id="user-email">user@example.com</p>
+                        <div id="user-status" class="user-status free">Free User</div>
+                        <button class="btn-upgrade" id="btn-upgrade">Upgrade to VIP</button>
                     </div>
                     <div class="sidebar-menu">
                         <ul>
@@ -192,7 +193,59 @@
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initialize Supabase client
+            const SUPABASE_URL = "https://xsofijbnzfiiteutpeza.supabase.co";
+            const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhzb2ZpamJuemZpaXRldXRwZXphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY0MTYyOTIsImV4cCI6MjA2MTk5MjI5Mn0.JEsqm4EHoCXYQHrlCIF4eL8e7oF2V5IFhxO1eSIzcbw";
+            const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            
+            // Check if user is logged in
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            
+            if (sessionError || !session) {
+                // User is not logged in, redirect to login page
+                window.location.href = 'login.html?redirect=user';
+                return;
+            }
+            
+            const user = session.user;
+            
+            // Update user information in the UI
+            document.getElementById('user-name').textContent = user.user_metadata.name || user.email.split('@')[0];
+            document.getElementById('sidebar-username').textContent = user.user_metadata.name || user.email.split('@')[0];
+            document.getElementById('user-email').textContent = user.email;
+            
+            // Check if user is VIP
+            const { data: vipData } = await supabase
+                .from('vip_users')
+                .select('id, subscription_end')
+                .eq('user_id', user.id)
+                .single();
+                
+            if (vipData) {
+                // User is VIP
+                const userStatus = document.getElementById('user-status');
+                userStatus.textContent = 'VIP User';
+                userStatus.classList.remove('free');
+                userStatus.classList.add('vip');
+                
+                // Hide upgrade button
+                document.getElementById('btn-upgrade').style.display = 'none';
+                
+                // Check if subscription is active
+                const now = new Date();
+                const subscriptionEnd = vipData.subscription_end ? new Date(vipData.subscription_end) : null;
+                
+                if (subscriptionEnd && subscriptionEnd < now) {
+                    // Subscription expired
+                    userStatus.textContent = 'VIP Expired';
+                    userStatus.classList.remove('vip');
+                    userStatus.classList.add('expired');
+                    document.getElementById('btn-upgrade').style.display = 'block';
+                    document.getElementById('btn-upgrade').textContent = 'Renew VIP';
+                }
+            }
+
             // Toggle user dropdown menu
             const userMenuBtn = document.querySelector('.user-menu-btn');
             const userDropdown = document.querySelector('.user-dropdown');
@@ -210,18 +263,14 @@
 
             // Handle logout
             const logoutBtn = document.getElementById('logout-btn');
-            logoutBtn.addEventListener('click', (e) => {
+            logoutBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 
-                // Simulate logout and redirect
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 500);
-                
-                /* With Supabase:
+                // Logout from Supabase
                 await supabase.auth.signOut();
+                
+                // Redirect to home page
                 window.location.href = 'index.html';
-                */
             });
 
             // Tab navigation
@@ -245,125 +294,216 @@
                 });
             });
 
-            // Sample bookmarks data
-            const bookmarks = [
-                {
-                    id: 1,
-                    title: "The King's Avatar",
-                    poster: "https://via.placeholder.com/300x450?text=The+King's+Avatar",
-                    episode: "Season 2, Ep 8"
-                },
-                {
-                    id: 3,
-                    title: "Battle Through The Heavens",
-                    poster: "https://via.placeholder.com/300x450?text=Battle+Through+The+Heavens",
-                    episode: "Season 4, Ep 12"
-                },
-                {
-                    id: 5,
-                    title: "Martial Universe",
-                    poster: "https://via.placeholder.com/300x450?text=Martial+Universe",
-                    episode: "Season 1, Ep 24"
-                }
-            ];
-            
-            // Sample history data
-            const history = [
-                {
-                    id: 1,
-                    title: "The King's Avatar",
-                    episode: "S2 E8: Glory's Challenge",
-                    poster: "https://via.placeholder.com/120x70?text=KA-S2E8",
-                    watched: "Today, 12:30 PM",
-                    progress: 75
-                },
-                {
-                    id: 5,
-                    title: "Martial Universe",
-                    episode: "S1 E24: Ancient Tablet",
-                    poster: "https://via.placeholder.com/120x70?text=MU-S1E24",
-                    watched: "Yesterday, 8:15 PM",
-                    progress: 100
-                },
-                {
-                    id: 2,
-                    title: "Soul Land",
-                    episode: "S3 E15: Spirit Hall",
-                    poster: "https://via.placeholder.com/120x70?text=SL-S3E15",
-                    watched: "May 3, 2025",
-                    progress: 50
-                }
-            ];
+            // Load bookmarks
+            const loadBookmarks = async () => {
+                const { data: bookmarks, error: bookmarksError } = await supabase
+                    .from('bookmarks')
+                    .select(`
+                        id,
+                        donghua:donghua_id (
+                            id,
+                            title,
+                            poster_url
+                        )
+                    `)
+                    .eq('user_id', user.id);
 
-            // Populate bookmarks
-            const bookmarkGrid = document.querySelector('#bookmarks .donghua-grid');
-            let bookmarkHTML = '';
-            
-            if (bookmarks.length > 0) {
-                bookmarks.forEach(bookmark => {
-                    bookmarkHTML += `
-                        <div class="donghua-card" data-id="${bookmark.id}">
-                            <div class="poster">
-                                <img src="${bookmark.poster}" alt="${bookmark.title}">
-                                <div class="overlay">
-                                    <div class="episode-tag">${bookmark.episode}</div>
-                                    <a href="donghua.html?id=${bookmark.id}" class="btn-watch">Continue</a>
-                                </div>
-                            </div>
-                            <div class="donghua-info">
-                                <h3>${bookmark.title}</h3>
-                                <div class="actions">
-                                    <button class="btn-icon remove-bookmark" data-id="${bookmark.id}">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-            } else {
-                bookmarkHTML = '<p class="empty-state">You have no bookmarks yet.</p>';
-            }
-            
-            bookmarkGrid.innerHTML = bookmarkHTML;
+                if (bookmarksError) {
+                    console.error('Error loading bookmarks:', bookmarksError);
+                    return;
+                }
 
-            // Populate watch history
-            const historyList = document.querySelector('#history .history-list');
-            let historyHTML = '';
-            
-            if (history.length > 0) {
-                history.forEach(item => {
-                    historyHTML += `
-                        <div class="history-item">
-                            <div class="history-poster">
-                                <img src="${item.poster}" alt="${item.title}">
-                            </div>
-                            <div class="history-details">
-                                <h4>${item.title}</h4>
-                                <p>${item.episode}</p>
-                                <div class="history-meta">
-                                    <span class="watched-at">${item.watched}</span>
-                                    <div class="progress-bar">
-                                        <div class="progress" style="width: ${item.progress}%"></div>
+                const bookmarkGrid = document.querySelector('#bookmarks .donghua-grid');
+                let bookmarkHTML = '';
+                
+                if (bookmarks && bookmarks.length > 0) {
+                    bookmarks.forEach(bookmark => {
+                        const donghua = bookmark.donghua;
+                        bookmarkHTML += `
+                            <div class="donghua-card" data-id="${donghua.id}">
+                                <div class="poster">
+                                    <img src="${donghua.poster_url || 'https://via.placeholder.com/300x450?text=' + encodeURIComponent(donghua.title)}" alt="${donghua.title}">
+                                    <div class="overlay">
+                                        <a href="donghua.html?id=${donghua.id}" class="btn-watch">View</a>
+                                    </div>
+                                </div>
+                                <div class="donghua-info">
+                                    <h3>${donghua.title}</h3>
+                                    <div class="actions">
+                                        <button class="btn-icon remove-bookmark" data-id="${bookmark.id}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
-                            <div class="history-actions">
-                                <a href="episode.html?id=${item.id}" class="btn-resume">
-                                    <i class="fas fa-play"></i>
-                                </a>
-                                <button class="btn-icon remove-history" data-id="${item.id}">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `;
+                        `;
+                    });
+                } else {
+                    bookmarkHTML = '<p class="empty-state">You have no bookmarks yet.</p>';
+                }
+                
+                bookmarkGrid.innerHTML = bookmarkHTML;
+                
+                // Add event listeners for bookmark removal
+                const removeButtons = document.querySelectorAll('.remove-bookmark');
+                removeButtons.forEach(button => {
+                    button.addEventListener('click', async (e) => {
+                        const bookmarkId = button.getAttribute('data-id');
+                        
+                        const { error: deleteError } = await supabase
+                            .from('bookmarks')
+                            .delete()
+                            .eq('id', bookmarkId);
+                            
+                        if (!deleteError) {
+                            // Remove card from UI
+                            const card = button.closest('.donghua-card');
+                            card.remove();
+                            
+                            // Show empty state if no more bookmarks
+                            if (document.querySelectorAll('.donghua-card').length === 0) {
+                                bookmarkGrid.innerHTML = '<p class="empty-state">You have no bookmarks yet.</p>';
+                            }
+                        }
+                    });
                 });
-            } else {
-                historyHTML = '<p class="empty-state">Your watch history is empty.</p>';
-            }
+            };
+
+            // Load watch history
+            const loadHistory = async () => {
+                const { data: history, error: historyError } = await supabase
+                    .from('history')
+                    .select(`
+                        id,
+                        progress,
+                        is_completed,
+                        watched_at,
+                        episode:episode_id (
+                            id,
+                            title,
+                            episode_number,
+                            thumbnail_url,
+                            donghua_id,
+                            donghua:donghua_id (
+                                title
+                            )
+                        )
+                    `)
+                    .eq('user_id', user.id)
+                    .order('watched_at', { ascending: false })
+                    .limit(10);
+
+                if (historyError) {
+                    console.error('Error loading history:', historyError);
+                    return;
+                }
+
+                const historyList = document.querySelector('#history .history-list');
+                let historyHTML = '';
+                
+                if (history && history.length > 0) {
+                    history.forEach(item => {
+                        const episode = item.episode;
+                        const donghuaTitle = episode?.donghua?.title || 'Unknown Donghua';
+                        const episodeTitle = episode?.title || `Episode ${episode?.episode_number || 'Unknown'}`;
+                        const thumbnailUrl = episode?.thumbnail_url || 'https://via.placeholder.com/120x70?text=No+Thumbnail';
+                        
+                        const watchedDate = new Date(item.watched_at);
+                        const today = new Date();
+                        const yesterday = new Date();
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        
+                        let watchedDisplay;
+                        if (watchedDate.toDateString() === today.toDateString()) {
+                            watchedDisplay = `Today, ${watchedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+                        } else if (watchedDate.toDateString() === yesterday.toDateString()) {
+                            watchedDisplay = `Yesterday, ${watchedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+                        } else {
+                            watchedDisplay = watchedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                        }
+                        
+                        historyHTML += `
+                            <div class="history-item">
+                                <div class="history-poster">
+                                    <img src="${thumbnailUrl}" alt="${episodeTitle}">
+                                </div>
+                                <div class="history-details">
+                                    <h4>${donghuaTitle}</h4>
+                                    <p>${episodeTitle}</p>
+                                    <div class="history-meta">
+                                        <span class="watched-at">${watchedDisplay}</span>
+                                        <div class="progress-bar">
+                                            <div class="progress" style="width: ${item.progress}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="history-actions">
+                                    <a href="episode.html?id=${episode.id}" class="btn-resume">
+                                        <i class="fas fa-play"></i>
+                                    </a>
+                                    <button class="btn-icon remove-history" data-id="${item.id}">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    historyHTML = '<p class="empty-state">Your watch history is empty.</p>';
+                }
+                
+                historyList.innerHTML = historyHTML;
+                
+                // Add event listeners for history removal
+                const removeButtons = document.querySelectorAll('.remove-history');
+                removeButtons.forEach(button => {
+                    button.addEventListener('click', async (e) => {
+                        const historyId = button.getAttribute('data-id');
+                        
+                        const { error: deleteError } = await supabase
+                            .from('history')
+                            .delete()
+                            .eq('id', historyId);
+                            
+                        if (!deleteError) {
+                            // Remove item from UI
+                            const item = button.closest('.history-item');
+                            item.remove();
+                            
+                            // Show empty state if no more history
+                            if (document.querySelectorAll('.history-item').length === 0) {
+                                historyList.innerHTML = '<p class="empty-state">Your watch history is empty.</p>';
+                            }
+                        }
+                    });
+                });
+            };
+
+            // Load user data
+            loadBookmarks();
+            loadHistory();
             
-            historyList.innerHTML = historyHTML;
+            // Handle upgrade to VIP button
+            const upgradeBtn = document.getElementById('btn-upgrade');
+            upgradeBtn.addEventListener('click', async () => {
+                alert('VIP upgrade functionality will be implemented here. This would typically integrate with a payment processor like Stripe.');
+                
+                // For demo purposes, let's simulate upgrading the user to VIP
+                const { error } = await supabase
+                    .from('vip_users')
+                    .upsert({
+                        user_id: user.id,
+                        name: user.user_metadata.name,
+                        email: user.email,
+                        subscription_start: new Date().toISOString(),
+                        subscription_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days from now
+                    });
+                    
+                if (!error) {
+                    // Refresh page to update UI
+                    window.location.reload();
+                }
+            });
         });
     </script>
 </body>

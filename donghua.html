@@ -1,12 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DonghuaWave - Donghua Details</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <header>
@@ -22,12 +22,13 @@
                     <li><a href="#">Genres</a></li>
                 </ul>
             </nav>
-            <div class="user-actions">
+            <div class="user-actions" id="user-actions">
                 <div class="search-box">
                     <input type="text" placeholder="Search...">
                     <button><i class="fas fa-search"></i></button>
                 </div>
-                <a href="login.html" class="login-btn">Login</a>
+                <!-- This will be replaced dynamically based on user login status -->
+                <a href="login.html" class="login-btn" id="login-btn">Login</a>
             </div>
         </div>
     </header>
@@ -41,7 +42,7 @@
                         <img id="donghua-poster" src="https://via.placeholder.com/300x450" alt="Donghua Poster">
                         <div class="donghua-actions">
                             <button class="btn-watch-now"><i class="fas fa-play"></i> Watch Now</button>
-                            <button class="btn-bookmark"><i class="far fa-bookmark"></i></button>
+                            <button class="btn-bookmark" id="btn-bookmark"><i class="far fa-bookmark"></i></button>
                         </div>
                     </div>
                     <div class="donghua-info">
@@ -83,14 +84,13 @@
                     <div class="episode-filters">
                         <select id="season-filter">
                             <option value="1">Season 1</option>
-                            <option value="2">Season 2</option>
-                            <option value="3">Season 3</option>
                         </select>
                     </div>
                 </div>
                 
                 <div class="episode-grid" id="episode-grid">
                     <!-- Episodes will be loaded here -->
+                    <div class="loading-indicator">Loading episodes...</div>
                 </div>
             </div>
         </section>
@@ -103,6 +103,7 @@
                 </div>
                 <div class="donghua-grid" id="similar-donghua">
                     <!-- Similar donghua will be loaded here -->
+                    <div class="loading-indicator">Loading similar donghua...</div>
                 </div>
             </div>
         </section>
@@ -156,87 +157,83 @@
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Get donghua ID from URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const donghuaId = urlParams.get('id') || '1'; // Default to ID 1 if not specified
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initialize Supabase client
+            const SUPABASE_URL = "https://xsofijbnzfiiteutpeza.supabase.co";
+            const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhzb2ZpamJuemZpaXRldXRwZXphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY0MTYyOTIsImV4cCI6MjA2MTk5MjI5Mn0.JEsqm4EHoCXYQHrlCIF4eL8e7oF2V5IFhxO1eSIzcbw";
+            const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             
-            // Sample donghua data - in a real app this would come from a database
-            const donghuaData = {
-                '1': {
-                    title: "The King's Avatar",
-                    original_title: "全职高手",
-                    poster: "https://via.placeholder.com/300x450?text=The+King's+Avatar",
-                    banner: "https://via.placeholder.com/1200x600?text=The+King's+Avatar+Banner",
-                    year: 2019,
-                    status: "Ongoing",
-                    rating: 4.8,
-                    episodes: 24,
-                    genres: ["Action", "Adventure", "eSports", "Drama"],
-                    synopsis: "Widely regarded as a trailblazer and top-tier professional player in the online multiplayer game Glory, Ye Xiu is dubbed the 'Battle God' for his skills and contributions to the game over the years. However, when forced to retire from the team and to leave his gaming career behind, he finds work at a nearby internet café. There, when Glory launches its tenth server, he throws himself into the game once more using a new character named 'Lord Grim'. Ye Xiu's early achievements on the new server immediately catch the attention of many players, as well as the big guilds, leaving them to wonder about the identity of this exceptional player."
-                },
-                '2': {
-                    title: "Soul Land",
-                    original_title: "斗罗大陆",
-                    poster: "https://via.placeholder.com/300x450?text=Soul+Land",
-                    banner: "https://via.placeholder.com/1200x600?text=Soul+Land+Banner",
-                    year: 2018,
-                    status: "Ongoing",
-                    rating: 4.7,
-                    episodes: 183,
-                    genres: ["Action", "Adventure", "Fantasy", "Martial Arts", "Romance"],
-                    synopsis: "Tang San spent his life in the Tang Outer Sect, dedicated to the creation and mastery of hidden weapons. Once he stole the secret lore of the Inner Sect to reach the pinnacle of his art, his only way out was death. But after throwing himself off the deadly Hell's Peak, he was reborn in a different world, the world of Douluo Dalu, a world where every person has a spirit of their own, and those with powerful spirits can practice their spirit power to rise and become Spirit Masters. The spirit that awakens within Tang San is Blue Silver Grass, a useless spirit. Will he be able to overcome the difficulties of having a weak spirit and rise to become a Spirit Master?"
-                },
-                '3': {
-                    title: "Battle Through The Heavens",
-                    original_title: "斗破苍穹",
-                    poster: "https://via.placeholder.com/300x450?text=Battle+Through+The+Heavens",
-                    banner: "https://via.placeholder.com/1200x600?text=Battle+Through+The+Heavens+Banner",
-                    year: 2017,
-                    status: "Completed",
-                    rating: 4.5,
-                    episodes: 48,
-                    genres: ["Action", "Adventure", "Fantasy", "Martial Arts", "Romance"],
-                    synopsis: "In a land where no magic is present. A land where the strong make the rules and the weak have to obey. A land filled with alluring treasures and beauty, yet also filled with unforeseen danger. Xiao Yan, who showed talents none had seen in decades, suddenly lost everything three years ago - his powers, his reputation, and his promise to his mother. Now, he works as a servant for the Xiao Family, once famous for their alchemy, but now falling. What will he do to save his clan? How will he find the powers he lost? Where is his mother's grave and what awaits him at the end of his journey?"
-                }
-            };
-
-            // Get the donghua details
-            const donghua = donghuaData[donghuaId];
+            // Check if user is logged in
+            const { data: { session } } = await supabase.auth.getSession();
+            let currentUser = null;
             
-            if (donghua) {
-                // Update page title
-                document.title = `DonghuaWave - ${donghua.title}`;
+            if (session) {
+                currentUser = session.user;
                 
-                // Update DOM elements with donghua details
-                document.getElementById('donghua-title').textContent = donghua.title;
-                document.getElementById('donghua-poster').src = donghua.poster;
-                document.getElementById('donghua-poster').alt = donghua.title;
-                document.getElementById('donghua-year').textContent = donghua.year;
-                document.getElementById('donghua-episodes').textContent = `${donghua.episodes} Episodes`;
-                document.getElementById('donghua-status').textContent = donghua.status;
-                document.getElementById('donghua-rating').textContent = donghua.rating;
-                document.getElementById('donghua-synopsis').textContent = donghua.synopsis;
+                // Update user menu
+                const userActionsDiv = document.getElementById('user-actions');
+                userActionsDiv.innerHTML = `
+                    <div class="search-box">
+                        <input type="text" placeholder="Search...">
+                        <button><i class="fas fa-search"></i></button>
+                    </div>
+                    <div class="user-menu">
+                        <button class="user-menu-btn">
+                            <img src="https://via.placeholder.com/40" alt="User" class="avatar">
+                            <span>${currentUser.user_metadata.name || currentUser.email.split('@')[0]}</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="user-dropdown">
+                            <ul>
+                                <li><a href="user.html"><i class="fas fa-user"></i> Dashboard</a></li>
+                                <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                                <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
                 
-                // Set background image for banner
-                document.querySelector('.donghua-banner').style.backgroundImage = `url(${donghua.banner})`;
+                // Add event listeners
+                const userMenuBtn = document.querySelector('.user-menu-btn');
+                const userDropdown = document.querySelector('.user-dropdown');
                 
-                // Update genres
-                const genreContainer = document.getElementById('donghua-genres');
-                genreContainer.innerHTML = '';
-                donghua.genres.forEach(genre => {
-                    const span = document.createElement('span');
-                    span.textContent = genre;
-                    genreContainer.appendChild(span);
+                userMenuBtn.addEventListener('click', () => {
+                    userDropdown.classList.toggle('active');
                 });
                 
-                // Generate episodes
-                generateEpisodes(donghua);
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.user-menu')) {
+                        userDropdown.classList.remove('active');
+                    }
+                });
                 
-                // Generate similar donghua
-                generateSimilarDonghua(donghuaId);
-            } else {
-                // Handle case where donghua is not found
+                const logoutBtn = document.getElementById('logout-btn');
+                logoutBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    await supabase.auth.signOut();
+                    window.location.reload();
+                });
+            }
+            
+            // Get donghua ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const donghuaId = urlParams.get('id');
+            
+            if (!donghuaId) {
+                // No donghua ID specified, redirect to home
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Fetch donghua data from Supabase
+            const { data: donghua, error: donghuaError } = await supabase
+                .from('donghua')
+                .select('*')
+                .eq('id', donghuaId)
+                .single();
+                
+            if (donghuaError || !donghua) {
+                // Donghua not found
                 document.querySelector('.donghua-details').innerHTML = `
                     <div class="error-message">
                         <h2>Donghua Not Found</h2>
@@ -244,98 +241,208 @@
                         <a href="index.html" class="btn-primary">Return to Home</a>
                     </div>
                 `;
+                return;
             }
-
-            // Function to generate episodes
-            function generateEpisodes(donghua) {
+            
+            // Update page with donghua data
+            document.title = `DonghuaWave - ${donghua.title}`;
+            document.getElementById('donghua-title').textContent = donghua.title;
+            document.getElementById('donghua-year').textContent = donghua.year || 'Unknown Year';
+            document.getElementById('donghua-status').textContent = donghua.status || 'Unknown Status';
+            document.getElementById('donghua-synopsis').textContent = donghua.description || 'No synopsis available.';
+            
+            // Set poster image
+            const posterImg = document.getElementById('donghua-poster');
+            if (donghua.poster_url) {
+                posterImg.src = donghua.poster_url;
+            } else {
+                posterImg.src = `https://via.placeholder.com/300x450?text=${encodeURIComponent(donghua.title)}`;
+            }
+            posterImg.alt = donghua.title;
+            
+            // Set background image for banner
+            if (donghua.poster_url) {
+                document.querySelector('.donghua-banner').style.backgroundImage = `url(${donghua.poster_url})`;
+            }
+            
+            // Update genres
+            const genreContainer = document.getElementById('donghua-genres');
+            genreContainer.innerHTML = '';
+            
+            if (donghua.genre && donghua.genre.length > 0) {
+                donghua.genre.forEach(genre => {
+                    const span = document.createElement('span');
+                    span.textContent = genre;
+                    genreContainer.appendChild(span);
+                });
+            } else {
+                const span = document.createElement('span');
+                span.textContent = 'No genres specified';
+                genreContainer.appendChild(span);
+            }
+            
+            // Fetch episodes
+            const { data: episodes, error: episodesError } = await supabase
+                .from('episodes')
+                .select('*')
+                .eq('donghua_id', donghuaId)
+                .order('episode_number', { ascending: true });
+                
+            if (!episodesError && episodes) {
+                // Update episodes count
+                document.getElementById('donghua-episodes').textContent = `${episodes.length} Episodes`;
+                
+                // Display episodes
                 const episodeGrid = document.getElementById('episode-grid');
                 episodeGrid.innerHTML = '';
                 
-                // Create episodes based on the total count
-                for (let i = 1; i <= donghua.episodes; i++) {
-                    const episode = document.createElement('div');
-                    episode.className = 'episode-card';
-                    episode.setAttribute('data-episode', i);
-                    
-                    episode.innerHTML = `
-                        <div class="episode-thumbnail">
-                            <img src="https://via.placeholder.com/180x100?text=${donghua.title}+Ep${i}" alt="Episode ${i}">
-                            <div class="episode-overlay">
-                                <span class="episode-duration">24:30</span>
-                                <button class="play-button"><i class="fas fa-play"></i></button>
-                            </div>
-                        </div>
-                        <div class="episode-info">
-                            <span class="episode-number">Episode ${i}</span>
-                            <h3 class="episode-title">Episode Title ${i}</h3>
-                        </div>
-                    `;
-                    
-                    episodeGrid.appendChild(episode);
-                    
-                    // Add click event to navigate to episode page
-                    episode.addEventListener('click', () => {
-                        window.location.href = `episode.html?donghua=${donghuaId}&ep=${i}`;
-                    });
-                }
-            }
-
-            // Function to generate similar donghua
-            function generateSimilarDonghua(currentDonghuaId) {
-                const similarContainer = document.getElementById('similar-donghua');
-                similarContainer.innerHTML = '';
-                
-                // Get all donghua except the current one
-                Object.entries(donghuaData).forEach(([id, donghua]) => {
-                    if (id !== currentDonghuaId) {
-                        const donghuaCard = document.createElement('div');
-                        donghuaCard.className = 'donghua-card';
-                        donghuaCard.setAttribute('data-id', id);
+                if (episodes.length > 0) {
+                    episodes.forEach(episode => {
+                        const episodeCard = document.createElement('div');
+                        episodeCard.className = 'episode-card';
+                        episodeCard.setAttribute('data-episode', episode.id);
                         
-                        donghuaCard.innerHTML = `
-                            <div class="poster">
-                                <img src="${donghua.poster}" alt="${donghua.title}">
-                                <div class="overlay">
-                                    <div class="rating">
-                                        <i class="fas fa-star"></i> ${donghua.rating}
-                                    </div>
-                                    <div class="year">${donghua.year}</div>
-                                    <a href="donghua.html?id=${id}" class="btn-watch">Watch Now</a>
+                        // Add premium tag if episode is premium
+                        const premiumTag = episode.is_premium ? '<div class="premium-tag"><i class="fas fa-crown"></i> VIP</div>' : '';
+                        
+                        episodeCard.innerHTML = `
+                            <div class="episode-thumbnail">
+                                <img src="${episode.thumbnail_url || `https://via.placeholder.com/180x100?text=${encodeURIComponent(donghua.title)}+Ep${episode.episode_number}`}" alt="Episode ${episode.episode_number}">
+                                <div class="episode-overlay">
+                                    ${premiumTag}
+                                    <span class="episode-duration">${formatDuration(episode.duration)}</span>
+                                    <button class="play-button"><i class="fas fa-play"></i></button>
                                 </div>
                             </div>
-                            <div class="donghua-info">
-                                <h3>${donghua.title}</h3>
+                            <div class="episode-info">
+                                <span class="episode-number">Episode ${episode.episode_number}</span>
+                                <h3 class="episode-title">${episode.title}</h3>
                             </div>
                         `;
                         
-                        similarContainer.appendChild(donghuaCard);
-                    }
-                });
-            }
-
-            // Handle bookmark button
-            const bookmarkBtn = document.querySelector('.btn-bookmark');
-            bookmarkBtn.addEventListener('click', () => {
-                // Toggle bookmark status
-                const isBookmarked = bookmarkBtn.querySelector('i').classList.contains('fas');
-                
-                if (isBookmarked) {
-                    bookmarkBtn.querySelector('i').classList.remove('fas');
-                    bookmarkBtn.querySelector('i').classList.add('far');
-                    // In real app: remove from bookmarks in database
+                        episodeGrid.appendChild(episodeCard);
+                        
+                        // Add click event to navigate to episode page
+                        episodeCard.addEventListener('click', () => {
+                            window.location.href = `episode.html?id=${episode.id}`;
+                        });
+                    });
                 } else {
+                    episodeGrid.innerHTML = '<p class="empty-state">No episodes available for this donghua yet.</p>';
+                }
+            }
+            
+            // Check if user has bookmarked this donghua
+            if (currentUser) {
+                const { data: bookmark } = await supabase
+                    .from('bookmarks')
+                    .select('id')
+                    .eq('user_id', currentUser.id)
+                    .eq('donghua_id', donghuaId)
+                    .single();
+                    
+                const bookmarkBtn = document.getElementById('btn-bookmark');
+                
+                if (bookmark) {
+                    // Already bookmarked
                     bookmarkBtn.querySelector('i').classList.remove('far');
                     bookmarkBtn.querySelector('i').classList.add('fas');
-                    // In real app: add to bookmarks in database
+                    bookmarkBtn.setAttribute('data-bookmarked', 'true');
+                    bookmarkBtn.setAttribute('data-bookmark-id', bookmark.id);
                 }
-            });
-
-            // Handle season filter change
-            const seasonFilter = document.getElementById('season-filter');
-            seasonFilter.addEventListener('change', () => {
-                // In a real app, this would filter episodes by season
-                alert(`Changed to Season ${seasonFilter.value} (In a real app, this would filter the episodes)`);
-            });
+                
+                // Handle bookmark button click
+                bookmarkBtn.addEventListener('click', async () => {
+                    if (!currentUser) {
+                        // Not logged in
+                        window.location.href = `login.html?redirect=donghua&id=${donghuaId}`;
+                        return;
+                    }
+                    
+                    const isBookmarked = bookmarkBtn.getAttribute('data-bookmarked') === 'true';
+                    
+                    if (isBookmarked) {
+                        // Remove bookmark
+                        const bookmarkId = bookmarkBtn.getAttribute('data-bookmark-id');
+                        const { error } = await supabase
+                            .from('bookmarks')
+                            .delete()
+                            .eq('id', bookmarkId);
+                            
+                        if (!error) {
+                            bookmarkBtn.querySelector('i').classList.remove('fas');
+                            bookmarkBtn.querySelector('i').classList.add('far');
+                            bookmarkBtn.setAttribute('data-bookmarked', 'false');
+                        }
+                    } else {
+                        // Add bookmark
+                        const { data, error } = await supabase
+                            .from('bookmarks')
+                            .insert({
+                                user_id: currentUser.id,
+                                donghua_id: donghuaId
+                            })
+                            .select('id')
+                            .single();
+                            
+                        if (!error && data) {
+                            bookmarkBtn.querySelector('i').classList.remove('far');
+                            bookmarkBtn.querySelector('i').classList.add('fas');
+                            bookmarkBtn.setAttribute('data-bookmarked', 'true');
+                            bookmarkBtn.setAttribute('data-bookmark-id', data.id);
+                        }
+                    }
+                });
+            } else {
+                // User not logged in, bookmark button should redirect to login
+                const bookmarkBtn = document.getElementById('btn-bookmark');
+                bookmarkBtn.addEventListener('click', () => {
+                    window.location.href = `login.html?redirect=donghua&id=${donghuaId}`;
+                });
+            }
+            
+            // Fetch similar donghua
+            const { data: similarDonghua } = await supabase
+                .from('donghua')
+                .select('*')
+                .neq('id', donghuaId)
+                .limit(6);
+                
+            const similarGrid = document.getElementById('similar-donghua');
+            similarGrid.innerHTML = '';
+            
+            if (similarDonghua && similarDonghua.length > 0) {
+                similarDonghua.forEach(item => {
+                    const donghuaCard = document.createElement('div');
+                    donghuaCard.className = 'donghua-card';
+                    donghuaCard.setAttribute('data-id', item.id);
+                    
+                    donghuaCard.innerHTML = `
+                        <div class="poster">
+                            <img src="${item.poster_url || `https://via.placeholder.com/300x450?text=${encodeURIComponent(item.title)}`}" alt="${item.title}">
+                            <div class="overlay">
+                                <div class="year">${item.year || ''}</div>
+                                <a href="donghua.html?id=${item.id}" class="btn-watch">Watch Now</a>
+                            </div>
+                        </div>
+                        <div class="donghua-info">
+                            <h3>${item.title}</h3>
+                        </div>
+                    `;
+                    
+                    similarGrid.appendChild(donghuaCard);
+                });
+            } else {
+                similarGrid.innerHTML = '<p class="empty-state">No similar donghua found.</p>';
+            }
+            
+            // Helper function to format duration
+            function formatDuration(seconds) {
+                if (!seconds) return '';
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+            }
         });
     </script>
 </body>

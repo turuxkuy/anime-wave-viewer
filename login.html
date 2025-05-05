@@ -57,31 +57,73 @@
             </div>
 
             <div class="auth-footer">
-                <p>Don't have an account? <a href="#">Sign up</a></p>
+                <p>Don't have an account? <a href="#" id="signup-link">Sign up</a></p>
                 <p>For admin login, <a href="login-admin.html">click here</a></p>
             </div>
         </div>
     </div>
 
+    <!-- Sign Up Modal -->
+    <div id="signup-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Create an Account</h2>
+            <form id="signupForm" class="auth-form">
+                <div class="form-group">
+                    <label for="signup-name">Full Name</label>
+                    <input type="text" id="signup-name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <div class="password-field">
+                        <input type="password" id="signup-password" name="password" required>
+                        <button type="button" class="toggle-password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">Confirm Password</label>
+                    <div class="password-field">
+                        <input type="password" id="confirm-password" name="confirm-password" required>
+                        <button type="button" class="toggle-password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn-login">Create Account</button>
+                </div>
+                <div id="signup-error-message" class="error-message"></div>
+            </form>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Toggle password visibility
-            const togglePassword = document.querySelector('.toggle-password');
-            const passwordField = document.querySelector('#password');
+            // Initialize Supabase client
+            const SUPABASE_URL = "https://xsofijbnzfiiteutpeza.supabase.co";
+            const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhzb2ZpamJuemZpaXRldXRwZXphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY0MTYyOTIsImV4cCI6MjA2MTk5MjI5Mn0.JEsqm4EHoCXYQHrlCIF4eL8e7oF2V5IFhxO1eSIzcbw";
+            const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             
-            togglePassword.addEventListener('click', () => {
-                const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-                passwordField.setAttribute('type', type);
-                togglePassword.querySelector('i').classList.toggle('fa-eye');
-                togglePassword.querySelector('i').classList.toggle('fa-eye-slash');
+            // Toggle password visibility
+            const togglePasswordButtons = document.querySelectorAll('.toggle-password');
+            
+            togglePasswordButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const passwordField = button.previousElementSibling;
+                    const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordField.setAttribute('type', type);
+                    button.querySelector('i').classList.toggle('fa-eye');
+                    button.querySelector('i').classList.toggle('fa-eye-slash');
+                });
             });
 
-            // Initialize Supabase client
-            const supabaseUrl = 'YOUR_SUPABASE_URL';
-            const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
-            const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-            // Handle form submission
+            // Handle login form submission
             const loginForm = document.getElementById('loginForm');
             const errorMessage = document.getElementById('error-message');
 
@@ -92,43 +134,103 @@
                 const password = document.getElementById('password').value;
                 
                 try {
-                    // Normally we would connect to Supabase here
-                    // For now, we'll simulate a successful login
-                    
-                    // Simulate API call delay
                     errorMessage.textContent = 'Logging in...';
                     
-                    setTimeout(() => {
-                        // Redirect to user dashboard
-                        window.location.href = 'user.html';
-                    }, 1500);
-                    
-                    /* In a real implementation with Supabase:
-                    const { user, error } = await supabase.auth.signIn({
+                    // Authenticate with Supabase
+                    const { data, error } = await supabase.auth.signInWithPassword({
                         email: email,
-                        password: password,
+                        password: password
                     });
                     
                     if (error) throw error;
                     
-                    // Check user role in profiles table
-                    const { data, error: profileError } = await supabase
-                        .from('profiles')
-                        .select('role, status')
-                        .eq('id', user.id)
+                    // Check if user exists in VIP table
+                    const { data: vipData } = await supabase
+                        .from('vip_users')
+                        .select('id')
+                        .eq('user_id', data.user.id)
                         .single();
                         
-                    if (profileError) throw profileError;
-                    
-                    if (data.role === 'user') {
-                        window.location.href = 'user.html';
+                    if (vipData) {
+                        // User is VIP
+                        window.location.href = 'user.html?status=vip';
                     } else {
-                        errorMessage.textContent = 'Access denied. Invalid user role.';
+                        // Regular user
+                        window.location.href = 'user.html';
                     }
-                    */
                     
                 } catch (error) {
                     errorMessage.textContent = error.message || 'An error occurred during login.';
+                }
+            });
+            
+            // Modal functionality for signup
+            const signupLink = document.getElementById('signup-link');
+            const signupModal = document.getElementById('signup-modal');
+            const closeModalBtn = document.querySelector('.close');
+            
+            signupLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                signupModal.style.display = 'block';
+            });
+            
+            closeModalBtn.addEventListener('click', () => {
+                signupModal.style.display = 'none';
+            });
+            
+            window.addEventListener('click', (e) => {
+                if (e.target === signupModal) {
+                    signupModal.style.display = 'none';
+                }
+            });
+            
+            // Handle signup form submission
+            const signupForm = document.getElementById('signupForm');
+            const signupErrorMessage = document.getElementById('signup-error-message');
+            
+            signupForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const name = document.getElementById('signup-name').value;
+                const email = document.getElementById('signup-email').value;
+                const password = document.getElementById('signup-password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+                
+                try {
+                    // Validate passwords match
+                    if (password !== confirmPassword) {
+                        throw new Error("Passwords don't match");
+                    }
+                    
+                    signupErrorMessage.textContent = 'Creating your account...';
+                    
+                    // Register with Supabase
+                    const { data, error } = await supabase.auth.signUp({
+                        email,
+                        password,
+                        options: {
+                            data: {
+                                name
+                            }
+                        }
+                    });
+                    
+                    if (error) throw error;
+                    
+                    signupErrorMessage.textContent = 'Account created successfully! You can now log in.';
+                    signupErrorMessage.style.color = 'green';
+                    
+                    // Close modal after short delay
+                    setTimeout(() => {
+                        signupModal.style.display = 'none';
+                        document.getElementById('email').value = email;
+                        errorMessage.textContent = 'Account created! Please log in.';
+                        errorMessage.style.color = 'green';
+                    }, 2000);
+                    
+                } catch (error) {
+                    signupErrorMessage.textContent = error.message || 'An error occurred during signup.';
+                    signupErrorMessage.style.color = 'red';
                 }
             });
         });

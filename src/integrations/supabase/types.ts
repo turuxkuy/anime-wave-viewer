@@ -9,7 +9,243 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      admins: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          name: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      bookmarks: {
+        Row: {
+          created_at: string
+          donghua_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          donghua_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          donghua_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookmarks_donghua_id_fkey"
+            columns: ["donghua_id"]
+            isOneToOne: false
+            referencedRelation: "donghua"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      donghua: {
+        Row: {
+          created_at: string
+          description: string | null
+          genre: string[] | null
+          id: string
+          poster_url: string | null
+          status: string | null
+          title: string
+          updated_at: string
+          year: number | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          genre?: string[] | null
+          id?: string
+          poster_url?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string
+          year?: number | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          genre?: string[] | null
+          id?: string
+          poster_url?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+          year?: number | null
+        }
+        Relationships: []
+      }
+      episodes: {
+        Row: {
+          created_at: string
+          donghua_id: string
+          duration: number | null
+          episode_number: number
+          id: string
+          is_premium: boolean
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          video_url: string
+        }
+        Insert: {
+          created_at?: string
+          donghua_id: string
+          duration?: number | null
+          episode_number: number
+          id?: string
+          is_premium?: boolean
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          video_url: string
+        }
+        Update: {
+          created_at?: string
+          donghua_id?: string
+          duration?: number | null
+          episode_number?: number
+          id?: string
+          is_premium?: boolean
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          video_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "episodes_donghua_id_fkey"
+            columns: ["donghua_id"]
+            isOneToOne: false
+            referencedRelation: "donghua"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      history: {
+        Row: {
+          episode_id: string
+          id: string
+          is_completed: boolean
+          progress: number
+          user_id: string
+          watched_at: string
+        }
+        Insert: {
+          episode_id: string
+          id?: string
+          is_completed?: boolean
+          progress?: number
+          user_id: string
+          watched_at?: string
+        }
+        Update: {
+          episode_id?: string
+          id?: string
+          is_completed?: boolean
+          progress?: number
+          user_id?: string
+          watched_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "history_episode_id_fkey"
+            columns: ["episode_id"]
+            isOneToOne: false
+            referencedRelation: "episodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          name: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      vip_users: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          name: string | null
+          subscription_end: string | null
+          subscription_start: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          subscription_end?: string | null
+          subscription_start?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          subscription_end?: string | null
+          subscription_start?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
