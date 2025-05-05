@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +6,7 @@
     <title>DonghuaWave - Admin Dashboard</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="admin-page">
     <div class="admin-sidebar">
@@ -44,8 +44,8 @@
                     <button><i class="fas fa-search"></i></button>
                 </div>
                 <div class="admin-user">
-                    <img src="https://via.placeholder.com/40" alt="Admin" class="avatar">
-                    <span>Admin</span>
+                    <img src="https://via.placeholder.com/40" alt="Admin" class="avatar" id="admin-avatar">
+                    <span id="admin-name">Admin</span>
                 </div>
             </div>
         </header>
@@ -58,28 +58,28 @@
                         <div class="stat-icon"><i class="fas fa-film"></i></div>
                         <div class="stat-data">
                             <h3>Total Donghua</h3>
-                            <p class="stat-number">78</p>
+                            <p class="stat-number" id="total-donghua">Loading...</p>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon"><i class="fas fa-play-circle"></i></div>
                         <div class="stat-data">
                             <h3>Total Episodes</h3>
-                            <p class="stat-number">1,245</p>
+                            <p class="stat-number" id="total-episodes">Loading...</p>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon"><i class="fas fa-users"></i></div>
                         <div class="stat-data">
                             <h3>Total Users</h3>
-                            <p class="stat-number">5,327</p>
+                            <p class="stat-number" id="total-users">Loading...</p>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon"><i class="fas fa-crown"></i></div>
                         <div class="stat-data">
                             <h3>VIP Users</h3>
-                            <p class="stat-number">842</p>
+                            <p class="stat-number" id="total-vip">Loading...</p>
                         </div>
                     </div>
                 </div>
@@ -116,75 +116,16 @@
                                 <button>All Time</button>
                             </div>
                         </div>
-                        <div class="popular-donghua-list">
-                            <div class="popular-item">
-                                <img src="https://via.placeholder.com/80x45?text=KA" alt="The King's Avatar">
-                                <div class="popular-item-info">
-                                    <h4>The King's Avatar</h4>
-                                    <div class="popular-item-stats">
-                                        <span><i class="fas fa-eye"></i> 24.5K</span>
-                                        <span><i class="fas fa-heart"></i> 4.8K</span>
-                                    </div>
-                                </div>
-                                <div class="popular-item-rank">#1</div>
-                            </div>
-                            <div class="popular-item">
-                                <img src="https://via.placeholder.com/80x45?text=SL" alt="Soul Land">
-                                <div class="popular-item-info">
-                                    <h4>Soul Land</h4>
-                                    <div class="popular-item-stats">
-                                        <span><i class="fas fa-eye"></i> 19.2K</span>
-                                        <span><i class="fas fa-heart"></i> 3.7K</span>
-                                    </div>
-                                </div>
-                                <div class="popular-item-rank">#2</div>
-                            </div>
-                            <div class="popular-item">
-                                <img src="https://via.placeholder.com/80x45?text=BTTH" alt="Battle Through The Heavens">
-                                <div class="popular-item-info">
-                                    <h4>Battle Through The Heavens</h4>
-                                    <div class="popular-item-stats">
-                                        <span><i class="fas fa-eye"></i> 15.8K</span>
-                                        <span><i class="fas fa-heart"></i> 3.1K</span>
-                                    </div>
-                                </div>
-                                <div class="popular-item-rank">#3</div>
-                            </div>
+                        <div class="popular-donghua-list" id="popular-donghua-list">
+                            <div class="loading">Loading popular donghua...</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="recent-activities">
                     <h3>Recent Activities</h3>
-                    <div class="activity-list">
-                        <div class="activity-item">
-                            <div class="activity-icon"><i class="fas fa-user-plus"></i></div>
-                            <div class="activity-content">
-                                <p><strong>New User Registered</strong> - user2963 joined the platform</p>
-                                <span class="activity-time">2 minutes ago</span>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon"><i class="fas fa-crown"></i></div>
-                            <div class="activity-content">
-                                <p><strong>VIP Upgrade</strong> - user1587 purchased VIP subscription</p>
-                                <span class="activity-time">45 minutes ago</span>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon"><i class="fas fa-film"></i></div>
-                            <div class="activity-content">
-                                <p><strong>New Donghua Added</strong> - "Perfect World" with 12 episodes</p>
-                                <span class="activity-time">3 hours ago</span>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon"><i class="fas fa-play-circle"></i></div>
-                            <div class="activity-content">
-                                <p><strong>New Episode Added</strong> - Soul Land S4 E24 is now available</p>
-                                <span class="activity-time">Yesterday</span>
-                            </div>
-                        </div>
+                    <div class="activity-list" id="activity-list">
+                        <div class="loading">Loading recent activities...</div>
                     </div>
                 </div>
             </section>
@@ -201,7 +142,7 @@
                 <div class="admin-filter-bar">
                     <div class="filter-group">
                         <label>Status:</label>
-                        <select>
+                        <select id="donghua-status-filter">
                             <option value="all">All</option>
                             <option value="ongoing">Ongoing</option>
                             <option value="completed">Completed</option>
@@ -210,7 +151,7 @@
                     </div>
                     <div class="filter-group">
                         <label>Genre:</label>
-                        <select>
+                        <select id="donghua-genre-filter">
                             <option value="all">All Genres</option>
                             <option value="action">Action</option>
                             <option value="adventure">Adventure</option>
@@ -221,7 +162,7 @@
                     </div>
                     <div class="filter-group">
                         <label>Sort By:</label>
-                        <select>
+                        <select id="donghua-sort-filter">
                             <option value="newest">Newest First</option>
                             <option value="oldest">Oldest First</option>
                             <option value="a-z">Title A-Z</option>
@@ -234,71 +175,28 @@
                     <table class="admin-table">
                         <thead>
                             <tr>
-                                <th><input type="checkbox"></th>
+                                <th><input type="checkbox" id="select-all-donghua"></th>
                                 <th>ID</th>
                                 <th>Poster</th>
                                 <th>Title</th>
                                 <th>Episodes</th>
                                 <th>Status</th>
-                                <th>Rating</th>
+                                <th>Year</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="donghua-table-body">
                             <tr>
-                                <td><input type="checkbox"></td>
-                                <td>1</td>
-                                <td><img src="https://via.placeholder.com/60x90?text=KA" alt="The King's Avatar"></td>
-                                <td>The King's Avatar</td>
-                                <td>24</td>
-                                <td><span class="status-badge ongoing">Ongoing</span></td>
-                                <td>4.8</td>
-                                <td class="actions-cell">
-                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-icon"><i class="fas fa-trash"></i></button>
-                                    <button class="btn-icon"><i class="fas fa-list"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><input type="checkbox"></td>
-                                <td>2</td>
-                                <td><img src="https://via.placeholder.com/60x90?text=SL" alt="Soul Land"></td>
-                                <td>Soul Land</td>
-                                <td>183</td>
-                                <td><span class="status-badge ongoing">Ongoing</span></td>
-                                <td>4.7</td>
-                                <td class="actions-cell">
-                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-icon"><i class="fas fa-trash"></i></button>
-                                    <button class="btn-icon"><i class="fas fa-list"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><input type="checkbox"></td>
-                                <td>3</td>
-                                <td><img src="https://via.placeholder.com/60x90?text=BTTH" alt="Battle Through The Heavens"></td>
-                                <td>Battle Through The Heavens</td>
-                                <td>48</td>
-                                <td><span class="status-badge completed">Completed</span></td>
-                                <td>4.5</td>
-                                <td class="actions-cell">
-                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-icon"><i class="fas fa-trash"></i></button>
-                                    <button class="btn-icon"><i class="fas fa-list"></i></button>
-                                </td>
+                                <td colspan="8" class="loading-row">Loading donghua data...</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
                 
-                <div class="pagination">
+                <div class="pagination" id="donghua-pagination">
                     <button class="pagination-prev" disabled><i class="fas fa-chevron-left"></i></button>
                     <div class="pagination-numbers">
                         <button class="active">1</button>
-                        <button>2</button>
-                        <button>3</button>
-                        <span>...</span>
-                        <button>12</button>
                     </div>
                     <button class="pagination-next"><i class="fas fa-chevron-right"></i></button>
                 </div>
@@ -307,29 +205,34 @@
                 <div class="admin-modal" id="add-donghua-modal">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h3>Add New Donghua</h3>
+                            <h3 id="donghua-form-title">Add New Donghua</h3>
                             <button class="close-modal"><i class="fas fa-times"></i></button>
                         </div>
                         <div class="modal-body">
-                            <form id="add-donghua-form">
+                            <form id="donghua-form">
+                                <input type="hidden" id="donghua-id" name="donghua-id">
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="title">Title</label>
                                         <input type="text" id="title" name="title" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="original_title">Original Title (Chinese)</label>
-                                        <input type="text" id="original_title" name="original_title">
+                                        <label for="year">Release Year</label>
+                                        <input type="number" id="year" name="year" min="1980" max="2030" required>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group file-upload">
                                         <label>Poster Image</label>
-                                        <div class="upload-area">
+                                        <div class="upload-area" id="poster-upload-area">
                                             <i class="fas fa-cloud-upload-alt"></i>
                                             <p>Click to upload or drag and drop</p>
                                             <span>JPG, PNG or GIF (Max 2MB)</span>
                                             <input type="file" id="poster" name="poster" accept="image/*">
+                                        </div>
+                                        <div id="poster-preview" class="image-preview" style="display:none">
+                                            <img id="poster-preview-img" src="" alt="Poster Preview">
+                                            <button type="button" id="remove-poster" class="remove-image"><i class="fas fa-times"></i></button>
                                         </div>
                                     </div>
                                 </div>
@@ -362,21 +265,29 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="year">Release Year</label>
-                                        <input type="number" id="year" name="year" min="1980" max="2030" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="studio">Studio</label>
-                                        <input type="text" id="studio" name="studio">
-                                    </div>
-                                </div>
                                 <div class="form-actions">
                                     <button type="button" class="btn-secondary cancel-modal">Cancel</button>
-                                    <button type="submit" class="btn-primary">Add Donghua</button>
+                                    <button type="submit" class="btn-primary" id="donghua-submit-btn">Add Donghua</button>
                                 </div>
                             </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delete Confirmation Modal -->
+                <div class="admin-modal" id="delete-donghua-modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Confirm Delete</h3>
+                            <button class="close-modal"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to delete <strong id="delete-donghua-title"></strong>?</p>
+                            <p>This action cannot be undone and will also delete all episodes associated with this donghua.</p>
+                            <div class="form-actions">
+                                <button class="btn-secondary cancel-modal">Cancel</button>
+                                <button class="btn-danger" id="confirm-delete-donghua">Delete Permanently</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -394,25 +305,22 @@
                 <div class="admin-filter-bar">
                     <div class="filter-group">
                         <label>Donghua:</label>
-                        <select>
+                        <select id="episode-donghua-filter">
                             <option value="all">All Donghua</option>
-                            <option value="1">The King's Avatar</option>
-                            <option value="2">Soul Land</option>
-                            <option value="3">Battle Through The Heavens</option>
+                            <!-- Will be populated from database -->
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>Season:</label>
-                        <select>
-                            <option value="all">All Seasons</option>
-                            <option value="1">Season 1</option>
-                            <option value="2">Season 2</option>
-                            <option value="3">Season 3</option>
+                        <label>Status:</label>
+                        <select id="episode-status-filter">
+                            <option value="all">All Episodes</option>
+                            <option value="free">Free</option>
+                            <option value="premium">Premium</option>
                         </select>
                     </div>
                     <div class="filter-group">
                         <label>Sort By:</label>
-                        <select>
+                        <select id="episode-sort-filter">
                             <option value="newest">Newest First</option>
                             <option value="oldest">Oldest First</option>
                         </select>
@@ -423,7 +331,7 @@
                     <table class="admin-table">
                         <thead>
                             <tr>
-                                <th><input type="checkbox"></th>
+                                <th><input type="checkbox" id="select-all-episodes"></th>
                                 <th>ID</th>
                                 <th>Thumbnail</th>
                                 <th>Donghua</th>
@@ -434,66 +342,107 @@
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="episodes-table-body">
                             <tr>
-                                <td><input type="checkbox"></td>
-                                <td>101</td>
-                                <td><img src="https://via.placeholder.com/80x45?text=KA-E12" alt="Episode thumbnail"></td>
-                                <td>The King's Avatar</td>
-                                <td>S2 E12</td>
-                                <td>Glory's Final Battle</td>
-                                <td>24:15</td>
-                                <td><span class="status-badge active">Active</span></td>
-                                <td class="actions-cell">
-                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-icon"><i class="fas fa-trash"></i></button>
-                                    <button class="btn-icon"><i class="fas fa-play"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><input type="checkbox"></td>
-                                <td>102</td>
-                                <td><img src="https://via.placeholder.com/80x45?text=SL-E183" alt="Episode thumbnail"></td>
-                                <td>Soul Land</td>
-                                <td>S3 E183</td>
-                                <td>Spirit Fusion</td>
-                                <td>22:45</td>
-                                <td><span class="status-badge active">Active</span></td>
-                                <td class="actions-cell">
-                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-icon"><i class="fas fa-trash"></i></button>
-                                    <button class="btn-icon"><i class="fas fa-play"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><input type="checkbox"></td>
-                                <td>103</td>
-                                <td><img src="https://via.placeholder.com/80x45?text=BTTH-E48" alt="Episode thumbnail"></td>
-                                <td>Battle Through The Heavens</td>
-                                <td>S4 E48</td>
-                                <td>Final Flame</td>
-                                <td>25:30</td>
-                                <td><span class="status-badge inactive">Inactive</span></td>
-                                <td class="actions-cell">
-                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-icon"><i class="fas fa-trash"></i></button>
-                                    <button class="btn-icon"><i class="fas fa-play"></i></button>
-                                </td>
+                                <td colspan="9" class="loading-row">Loading episodes data...</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
                 
-                <div class="pagination">
+                <div class="pagination" id="episodes-pagination">
                     <button class="pagination-prev" disabled><i class="fas fa-chevron-left"></i></button>
                     <div class="pagination-numbers">
                         <button class="active">1</button>
-                        <button>2</button>
-                        <button>3</button>
-                        <span>...</span>
-                        <button>28</button>
                     </div>
                     <button class="pagination-next"><i class="fas fa-chevron-right"></i></button>
+                </div>
+
+                <!-- Add Episode Modal -->
+                <div class="admin-modal" id="add-episode-modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 id="episode-form-title">Add New Episode</h3>
+                            <button class="close-modal"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="episode-form">
+                                <input type="hidden" id="episode-id" name="episode-id">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="episode-donghua">Donghua</label>
+                                        <select id="episode-donghua" name="episode-donghua" required>
+                                            <option value="">Select Donghua</option>
+                                            <!-- Will be populated from database -->
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="episode-number">Episode Number</label>
+                                        <input type="number" id="episode-number" name="episode-number" min="1" required>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="episode-title">Episode Title</label>
+                                        <input type="text" id="episode-title" name="episode-title" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="episode-duration">Duration (seconds)</label>
+                                        <input type="number" id="episode-duration" name="episode-duration" min="1" required>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group file-upload">
+                                        <label>Thumbnail</label>
+                                        <div class="upload-area" id="thumbnail-upload-area">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            <p>Click to upload or drag and drop</p>
+                                            <span>JPG, PNG or GIF (Max 1MB)</span>
+                                            <input type="file" id="thumbnail" name="thumbnail" accept="image/*">
+                                        </div>
+                                        <div id="thumbnail-preview" class="image-preview" style="display:none">
+                                            <img id="thumbnail-preview-img" src="" alt="Thumbnail Preview">
+                                            <button type="button" id="remove-thumbnail" class="remove-image"><i class="fas fa-times"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="video-url">Video URL</label>
+                                        <input type="url" id="video-url" name="video-url" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="is-premium" class="checkbox-label">
+                                            <input type="checkbox" id="is-premium" name="is-premium">
+                                            Premium Episode (VIP Only)
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="button" class="btn-secondary cancel-modal">Cancel</button>
+                                    <button type="submit" class="btn-primary" id="episode-submit-btn">Add Episode</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delete Episode Confirmation Modal -->
+                <div class="admin-modal" id="delete-episode-modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Confirm Delete</h3>
+                            <button class="close-modal"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to delete <strong id="delete-episode-title"></strong>?</p>
+                            <p>This action cannot be undone.</p>
+                            <div class="form-actions">
+                                <button class="btn-secondary cancel-modal">Cancel</button>
+                                <button class="btn-danger" id="confirm-delete-episode">Delete Permanently</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -501,31 +450,20 @@
             <section id="users-manage" class="admin-section">
                 <div class="section-header">
                     <h2>Users Management</h2>
-                    <button class="btn-primary" id="add-user-btn">
-                        <i class="fas fa-plus"></i> Add New User
-                    </button>
                 </div>
 
                 <div class="admin-filter-bar">
                     <div class="filter-group">
                         <label>Status:</label>
-                        <select>
+                        <select id="user-status-filter">
                             <option value="all">All Users</option>
-                            <option value="active">Active</option>
-                            <option value="suspended">Suspended</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>Type:</label>
-                        <select>
-                            <option value="all">All Types</option>
                             <option value="free">Free</option>
                             <option value="vip">VIP</option>
                         </select>
                     </div>
                     <div class="filter-group">
                         <label>Sort By:</label>
-                        <select>
+                        <select id="user-sort-filter">
                             <option value="newest">Newest First</option>
                             <option value="oldest">Oldest First</option>
                         </select>
@@ -536,164 +474,904 @@
                     <table class="admin-table">
                         <thead>
                             <tr>
-                                <th><input type="checkbox"></th>
+                                <th><input type="checkbox" id="select-all-users"></th>
                                 <th>ID</th>
                                 <th>User</th>
                                 <th>Email</th>
                                 <th>Type</th>
-                                <th>Status</th>
                                 <th>Joined</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="users-table-body">
                             <tr>
-                                <td><input type="checkbox"></td>
-                                <td>1001</td>
-                                <td>
-                                    <div class="user-cell">
-                                        <img src="https://via.placeholder.com/32" alt="User Avatar">
-                                        <span>user1234</span>
-                                    </div>
-                                </td>
-                                <td>user1234@example.com</td>
-                                <td><span class="type-badge vip">VIP</span></td>
-                                <td><span class="status-badge active">Active</span></td>
-                                <td>May 1, 2025</td>
-                                <td class="actions-cell">
-                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-icon"><i class="fas fa-ban"></i></button>
-                                    <button class="btn-icon"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><input type="checkbox"></td>
-                                <td>1002</td>
-                                <td>
-                                    <div class="user-cell">
-                                        <img src="https://via.placeholder.com/32" alt="User Avatar">
-                                        <span>animefan99</span>
-                                    </div>
-                                </td>
-                                <td>animefan99@example.com</td>
-                                <td><span class="type-badge free">Free</span></td>
-                                <td><span class="status-badge active">Active</span></td>
-                                <td>Apr 28, 2025</td>
-                                <td class="actions-cell">
-                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-icon"><i class="fas fa-ban"></i></button>
-                                    <button class="btn-icon"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><input type="checkbox"></td>
-                                <td>1003</td>
-                                <td>
-                                    <div class="user-cell">
-                                        <img src="https://via.placeholder.com/32" alt="User Avatar">
-                                        <span>donghua_lover</span>
-                                    </div>
-                                </td>
-                                <td>donghua_lover@example.com</td>
-                                <td><span class="type-badge free">Free</span></td>
-                                <td><span class="status-badge suspended">Suspended</span></td>
-                                <td>Apr 22, 2025</td>
-                                <td class="actions-cell">
-                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-icon"><i class="fas fa-check-circle"></i></button>
-                                    <button class="btn-icon"><i class="fas fa-trash"></i></button>
-                                </td>
+                                <td colspan="7" class="loading-row">Loading users data...</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
                 
-                <div class="pagination">
+                <div class="pagination" id="users-pagination">
                     <button class="pagination-prev" disabled><i class="fas fa-chevron-left"></i></button>
                     <div class="pagination-numbers">
                         <button class="active">1</button>
-                        <button>2</button>
-                        <button>3</button>
-                        <span>...</span>
-                        <button>42</button>
                     </div>
                     <button class="pagination-next"><i class="fas fa-chevron-right"></i></button>
+                </div>
+
+                <!-- Make VIP Modal -->
+                <div class="admin-modal" id="make-vip-modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Upgrade to VIP</h3>
+                            <button class="close-modal"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to upgrade <strong id="upgrade-user-name"></strong> to VIP status?</p>
+                            <form id="make-vip-form">
+                                <input type="hidden" id="upgrade-user-id" name="upgrade-user-id">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="subscription-end">Subscription End Date</label>
+                                        <input type="date" id="subscription-end" name="subscription-end" required>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="button" class="btn-secondary cancel-modal">Cancel</button>
+                                    <button type="submit" class="btn-primary">Upgrade to VIP</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </section>
         </div>
     </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Toggle sidebar
-            const toggleSidebar = document.querySelector('.toggle-sidebar');
-            const adminBody = document.querySelector('.admin-page');
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initialize Supabase client
+            const SUPABASE_URL = "https://xsofijbnzfiiteutpeza.supabase.co";
+            const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhzb2ZpamJuemZpaXRldXRwZXphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY0MTYyOTIsImV4cCI6MjA2MTk5MjI5Mn0.JEsqm4EHoCXYQHrlCIF4eL8e7oF2V5IFhxO1eSIzcbw";
+            const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             
-            toggleSidebar.addEventListener('click', () => {
-                adminBody.classList.toggle('sidebar-collapsed');
-            });
-
-            // Tab navigation
-            const navLinks = document.querySelectorAll('.admin-nav a');
-            const adminSections = document.querySelectorAll('.admin-section');
+            // Check if user is logged in and is admin
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                // Not logged in, redirect to login page
+                window.location.href = 'login-admin.html';
+                return;
+            }
             
-            navLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    
-                    // Remove active class from all links and sections
-                    navLinks.forEach(l => l.parentElement.classList.remove('active'));
-                    adminSections.forEach(s => s.classList.remove('active'));
-                    
-                    // Add active class to clicked link
-                    link.parentElement.classList.add('active');
-                    
-                    // Show corresponding section
-                    const targetId = link.getAttribute('href').substring(1);
-                    document.getElementById(targetId).classList.add('active');
-                });
-            });
-
-            // Modal functionality
-            const addDonghuaBtn = document.getElementById('add-donghua-btn');
-            const addDonghuaModal = document.getElementById('add-donghua-modal');
-            const closeModal = document.querySelector('.close-modal');
-            const cancelModal = document.querySelector('.cancel-modal');
-            
-            addDonghuaBtn.addEventListener('click', () => {
-                addDonghuaModal.classList.add('active');
-            });
-            
-            closeModal.addEventListener('click', () => {
-                addDonghuaModal.classList.remove('active');
-            });
-            
-            cancelModal.addEventListener('click', () => {
-                addDonghuaModal.classList.remove('active');
-            });
-
-            // Handle modal form submission
-            const addDonghuaForm = document.getElementById('add-donghua-form');
-            addDonghuaForm.addEventListener('submit', (e) => {
-                e.preventDefault();
+            // Check if user is an admin
+            const { data: adminData, error: adminError } = await supabase
+                .from('admins')
+                .select('*')
+                .eq('user_id', session.user.id)
+                .single();
                 
-                // Simulate form submission
-                setTimeout(() => {
-                    addDonghuaModal.classList.remove('active');
-                    
-                    // Show success message (in a real app)
-                    alert('Donghua added successfully!');
-                }, 1000);
-            });
-
+            if (adminError || !adminData) {
+                // Not an admin, redirect to login page
+                alert('You do not have permission to access this page.');
+                await supabase.auth.signOut();
+                window.location.href = 'login-admin.html';
+                return;
+            }
+            
+            // Set admin name
+            document.getElementById('admin-name').textContent = adminData.name || session.user.email;
+            
+            // Load dashboard stats
+            loadDashboardStats();
+            
+            // Load popular donghua
+            loadPopularDonghua();
+            
+            // Load recent activities (mock data for now)
+            loadRecentActivities();
+            
+            // Load donghua table
+            loadDonghuaTable();
+            
+            // Load episodes table
+            loadEpisodesTable();
+            
+            // Load users table
+            loadUsersTable();
+            
+            // Initialize event listeners
+            initEventListeners();
+            
             // Handle logout
-            const logoutBtn = document.getElementById('logout-btn');
-            logoutBtn.addEventListener('click', () => {
-                // Simulate logout
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 500);
+            document.getElementById('logout-btn').addEventListener('click', async () => {
+                await supabase.auth.signOut();
+                window.location.href = 'login-admin.html';
             });
+            
+            // Async function to load dashboard stats
+            async function loadDashboardStats() {
+                try {
+                    // Count donghua
+                    const { count: donghuaCount, error: donghuaError } = await supabase
+                        .from('donghua')
+                        .select('*', { count: 'exact', head: true });
+                        
+                    if (!donghuaError) {
+                        document.getElementById('total-donghua').textContent = donghuaCount;
+                    }
+                    
+                    // Count episodes
+                    const { count: episodesCount, error: episodesError } = await supabase
+                        .from('episodes')
+                        .select('*', { count: 'exact', head: true });
+                        
+                    if (!episodesError) {
+                        document.getElementById('total-episodes').textContent = episodesCount;
+                    }
+                    
+                    // Count users
+                    const { count: usersCount, error: usersError } = await supabase
+                        .from('users')
+                        .select('*', { count: 'exact', head: true });
+                        
+                    if (!usersError) {
+                        document.getElementById('total-users').textContent = usersCount;
+                    }
+                    
+                    // Count VIP users
+                    const { count: vipCount, error: vipError } = await supabase
+                        .from('vip_users')
+                        .select('*', { count: 'exact', head: true });
+                        
+                    if (!vipError) {
+                        document.getElementById('total-vip').textContent = vipCount;
+                    }
+                } catch (error) {
+                    console.error('Error loading dashboard stats:', error);
+                }
+            }
+            
+            // Load popular donghua
+            async function loadPopularDonghua() {
+                try {
+                    const { data, error } = await supabase
+                        .from('donghua')
+                        .select('*')
+                        .limit(3);
+                        
+                    if (error) throw error;
+                    
+                    const popularList = document.getElementById('popular-donghua-list');
+                    popularList.innerHTML = '';
+                    
+                    if (data && data.length > 0) {
+                        data.forEach((donghua, index) => {
+                            const item = document.createElement('div');
+                            item.className = 'popular-item';
+                            
+                            const posterUrl = donghua.poster_url || `https://via.placeholder.com/80x45?text=${encodeURIComponent(donghua.title)}`;
+                            
+                            item.innerHTML = `
+                                <img src="${posterUrl}" alt="${donghua.title}">
+                                <div class="popular-item-info">
+                                    <h4>${donghua.title}</h4>
+                                    <div class="popular-item-stats">
+                                        <span><i class="fas fa-eye"></i> N/A</span>
+                                        <span><i class="fas fa-heart"></i> N/A</span>
+                                    </div>
+                                </div>
+                                <div class="popular-item-rank">#${index + 1}</div>
+                            `;
+                            
+                            popularList.appendChild(item);
+                        });
+                    } else {
+                        popularList.innerHTML = '<p class="empty-state">No donghua available.</p>';
+                    }
+                } catch (error) {
+                    console.error('Error loading popular donghua:', error);
+                    document.getElementById('popular-donghua-list').innerHTML = '<p class="error-state">Error loading data.</p>';
+                }
+            }
+            
+            // Load recent activities (using mock data for now)
+            function loadRecentActivities() {
+                const activityList = document.getElementById('activity-list');
+                activityList.innerHTML = `
+                    <div class="activity-item">
+                        <div class="activity-icon"><i class="fas fa-user-plus"></i></div>
+                        <div class="activity-content">
+                            <p><strong>New User Registered</strong> - user2963 joined the platform</p>
+                            <span class="activity-time">2 minutes ago</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon"><i class="fas fa-crown"></i></div>
+                        <div class="activity-content">
+                            <p><strong>VIP Upgrade</strong> - user1587 purchased VIP subscription</p>
+                            <span class="activity-time">45 minutes ago</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon"><i class="fas fa-film"></i></div>
+                        <div class="activity-content">
+                            <p><strong>New Donghua Added</strong> - "Perfect World" with 12 episodes</p>
+                            <span class="activity-time">3 hours ago</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Load Donghua Table
+            async function loadDonghuaTable() {
+                try {
+                    const { data, error } = await supabase
+                        .from('donghua')
+                        .select('*, episodes(count)');
+                        
+                    if (error) throw error;
+                    
+                    const tableBody = document.getElementById('donghua-table-body');
+                    tableBody.innerHTML = '';
+                    
+                    if (data && data.length > 0) {
+                        data.forEach(donghua => {
+                            const row = document.createElement('tr');
+                            row.setAttribute('data-id', donghua.id);
+                            
+                            const posterUrl = donghua.poster_url || `https://via.placeholder.com/60x90?text=${encodeURIComponent(donghua.title)}`;
+                            const episodeCount = donghua.episodes[0]?.count || 0;
+                            
+                            row.innerHTML = `
+                                <td><input type="checkbox" class="donghua-checkbox"></td>
+                                <td>${donghua.id.substring(0, 8)}...</td>
+                                <td><img src="${posterUrl}" alt="${donghua.title}" class="table-thumbnail"></td>
+                                <td>${donghua.title}</td>
+                                <td>${episodeCount}</td>
+                                <td><span class="status-badge ${donghua.status || 'ongoing'}">${donghua.status || 'Ongoing'}</span></td>
+                                <td>${donghua.year || 'N/A'}</td>
+                                <td class="actions-cell">
+                                    <button class="btn-icon edit-donghua" title="Edit"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon delete-donghua" title="Delete"><i class="fas fa-trash"></i></button>
+                                    <button class="btn-icon view-donghua" title="View" onclick="window.open('donghua.html?id=${donghua.id}', '_blank')"><i class="fas fa-eye"></i></button>
+                                </td>
+                            `;
+                            
+                            tableBody.appendChild(row);
+                        });
+                        
+                        // Add event listeners for edit and delete buttons
+                        document.querySelectorAll('.edit-donghua').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const row = this.closest('tr');
+                                const donghuaId = row.getAttribute('data-id');
+                                editDonghua(donghuaId);
+                            });
+                        });
+                        
+                        document.querySelectorAll('.delete-donghua').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const row = this.closest('tr');
+                                const donghuaId = row.getAttribute('data-id');
+                                const donghuaTitle = row.querySelector('td:nth-child(4)').textContent;
+                                showDeleteDonghuaModal(donghuaId, donghuaTitle);
+                            });
+                        });
+                    } else {
+                        tableBody.innerHTML = '<tr><td colspan="8" class="empty-state">No donghua available.</td></tr>';
+                    }
+                } catch (error) {
+                    console.error('Error loading donghua table:', error);
+                    document.getElementById('donghua-table-body').innerHTML = '<tr><td colspan="8" class="error-state">Error loading data.</td></tr>';
+                }
+            }
+            
+            // Load Episodes Table
+            async function loadEpisodesTable() {
+                try {
+                    const { data: donghuaData } = await supabase
+                        .from('donghua')
+                        .select('id, title');
+                        
+                    // Populate donghua filter dropdown
+                    const donghuaSelect = document.getElementById('episode-donghua-filter');
+                    donghuaSelect.innerHTML = '<option value="all">All Donghua</option>';
+                    
+                    if (donghuaData && donghuaData.length > 0) {
+                        donghuaData.forEach(donghua => {
+                            const option = document.createElement('option');
+                            option.value = donghua.id;
+                            option.textContent = donghua.title;
+                            donghuaSelect.appendChild(option);
+                        });
+                        
+                        // Also populate donghua select in episode form
+                        const episodeDonghuaSelect = document.getElementById('episode-donghua');
+                        episodeDonghuaSelect.innerHTML = '<option value="">Select Donghua</option>';
+                        donghuaData.forEach(donghua => {
+                            const option = document.createElement('option');
+                            option.value = donghua.id;
+                            option.textContent = donghua.title;
+                            episodeDonghuaSelect.appendChild(option);
+                        });
+                    }
+                    
+                    // Load episodes
+                    const { data, error } = await supabase
+                        .from('episodes')
+                        .select('*, donghua!inner(title)')
+                        .order('created_at', { ascending: false });
+                        
+                    if (error) throw error;
+                    
+                    const tableBody = document.getElementById('episodes-table-body');
+                    tableBody.innerHTML = '';
+                    
+                    if (data && data.length > 0) {
+                        data.forEach(episode => {
+                            const row = document.createElement('tr');
+                            row.setAttribute('data-id', episode.id);
+                            
+                            const thumbnailUrl = episode.thumbnail_url || `https://via.placeholder.com/80x45?text=EP${episode.episode_number}`;
+                            const duration = formatDuration(episode.duration || 0);
+                            
+                            row.innerHTML = `
+                                <td><input type="checkbox" class="episode-checkbox"></td>
+                                <td>${episode.id.substring(0, 8)}...</td>
+                                <td><img src="${thumbnailUrl}" alt="Episode ${episode.episode_number}" class="table-thumbnail"></td>
+                                <td>${episode.donghua.title}</td>
+                                <td>EP ${episode.episode_number}</td>
+                                <td>${episode.title}</td>
+                                <td>${duration}</td>
+                                <td><span class="status-badge ${episode.is_premium ? 'premium' : 'free'}">${episode.is_premium ? 'Premium' : 'Free'}</span></td>
+                                <td class="actions-cell">
+                                    <button class="btn-icon edit-episode" title="Edit"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon delete-episode" title="Delete"><i class="fas fa-trash"></i></button>
+                                    <button class="btn-icon view-episode" title="View" onclick="window.open('episode.html?id=${episode.id}', '_blank')"><i class="fas fa-play"></i></button>
+                                </td>
+                            `;
+                            
+                            tableBody.appendChild(row);
+                        });
+                        
+                        // Add event listeners for edit and delete buttons
+                        document.querySelectorAll('.edit-episode').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const row = this.closest('tr');
+                                const episodeId = row.getAttribute('data-id');
+                                editEpisode(episodeId);
+                            });
+                        });
+                        
+                        document.querySelectorAll('.delete-episode').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const row = this.closest('tr');
+                                const episodeId = row.getAttribute('data-id');
+                                const episodeTitle = row.querySelector('td:nth-child(6)').textContent;
+                                showDeleteEpisodeModal(episodeId, episodeTitle);
+                            });
+                        });
+                    } else {
+                        tableBody.innerHTML = '<tr><td colspan="9" class="empty-state">No episodes available.</td></tr>';
+                    }
+                } catch (error) {
+                    console.error('Error loading episodes table:', error);
+                    document.getElementById('episodes-table-body').innerHTML = '<tr><td colspan="9" class="error-state">Error loading data.</td></tr>';
+                }
+                
+                // Helper function to format duration
+                function formatDuration(seconds) {
+                    if (!seconds) return '00:00';
+                    const minutes = Math.floor(seconds / 60);
+                    const remainingSeconds = seconds % 60;
+                    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+                }
+            }
+            
+            // Load Users Table
+            async function loadUsersTable() {
+                try {
+                    // Get regular users
+                    const { data: usersData, error: usersError } = await supabase
+                        .from('users')
+                        .select('*, auth_users:user_id(created_at)')
+                        .order('created_at', { ascending: false });
+                        
+                    if (usersError) throw usersError;
+                    
+                    // Get VIP users
+                    const { data: vipData, error: vipError } = await supabase
+                        .from('vip_users')
+                        .select('user_id');
+                        
+                    if (vipError) throw vipError;
+                    
+                    // Extract VIP user IDs for easy lookup
+                    const vipUserIds = new Set(vipData.map(vip => vip.user_id));
+                    
+                    const tableBody = document.getElementById('users-table-body');
+                    tableBody.innerHTML = '';
+                    
+                    if (usersData && usersData.length > 0) {
+                        usersData.forEach(user => {
+                            const row = document.createElement('tr');
+                            row.setAttribute('data-id', user.user_id);
+                            
+                            const isVIP = vipUserIds.has(user.user_id);
+                            const joinedDate = user.auth_users?.created_at ? new Date(user.auth_users.created_at).toLocaleDateString() : 'N/A';
+                            
+                            row.innerHTML = `
+                                <td><input type="checkbox" class="user-checkbox"></td>
+                                <td>${user.user_id.substring(0, 8)}...</td>
+                                <td>
+                                    <div class="user-cell">
+                                        <img src="https://via.placeholder.com/32" alt="User Avatar">
+                                        <span>${user.name || 'User'}</span>
+                                    </div>
+                                </td>
+                                <td>${user.email || 'N/A'}</td>
+                                <td><span class="type-badge ${isVIP ? 'vip' : 'free'}">${isVIP ? 'VIP' : 'Free'}</span></td>
+                                <td>${joinedDate}</td>
+                                <td class="actions-cell">
+                                    ${isVIP ? '' : `<button class="btn-icon make-vip" title="Upgrade to VIP"><i class="fas fa-crown"></i></button>`}
+                                </td>
+                            `;
+                            
+                            tableBody.appendChild(row);
+                        });
+                        
+                        // Add event listener for make VIP button
+                        document.querySelectorAll('.make-vip').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const row = this.closest('tr');
+                                const userId = row.getAttribute('data-id');
+                                const userName = row.querySelector('.user-cell span').textContent;
+                                showMakeVipModal(userId, userName);
+                            });
+                        });
+                    } else {
+                        tableBody.innerHTML = '<tr><td colspan="7" class="empty-state">No users available.</td></tr>';
+                    }
+                } catch (error) {
+                    console.error('Error loading users table:', error);
+                    document.getElementById('users-table-body').innerHTML = '<tr><td colspan="7" class="error-state">Error loading data.</td></tr>';
+                }
+            }
+            
+            // Initialize event listeners
+            function initEventListeners() {
+                // Tab navigation
+                const navLinks = document.querySelectorAll('.admin-nav a');
+                const adminSections = document.querySelectorAll('.admin-section');
+                
+                navLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        
+                        // Remove active class from all links and sections
+                        navLinks.forEach(l => l.parentElement.classList.remove('active'));
+                        adminSections.forEach(s => s.classList.remove('active'));
+                        
+                        // Add active class to clicked link
+                        link.parentElement.classList.add('active');
+                        
+                        // Show corresponding section
+                        const targetId = link.getAttribute('href').substring(1);
+                        document.getElementById(targetId).classList.add('active');
+                    });
+                });
+                
+                // Toggle sidebar
+                const toggleSidebar = document.querySelector('.toggle-sidebar');
+                const adminBody = document.querySelector('.admin-page');
+                
+                toggleSidebar.addEventListener('click', () => {
+                    adminBody.classList.toggle('sidebar-collapsed');
+                });
+                
+                // Modal functionality - close buttons
+                document.querySelectorAll('.close-modal, .cancel-modal').forEach(button => {
+                    button.addEventListener('click', () => {
+                        document.querySelectorAll('.admin-modal').forEach(modal => {
+                            modal.classList.remove('active');
+                        });
+                    });
+                });
+                
+                // Add Donghua button
+                document.getElementById('add-donghua-btn').addEventListener('click', () => {
+                    resetDonghuaForm();
+                    document.getElementById('donghua-form-title').textContent = 'Add New Donghua';
+                    document.getElementById('donghua-submit-btn').textContent = 'Add Donghua';
+                    document.getElementById('add-donghua-modal').classList.add('active');
+                });
+                
+                // Add Episode button
+                document.getElementById('add-episode-btn').addEventListener('click', () => {
+                    resetEpisodeForm();
+                    document.getElementById('episode-form-title').textContent = 'Add New Episode';
+                    document.getElementById('episode-submit-btn').textContent = 'Add Episode';
+                    document.getElementById('add-episode-modal').classList.add('active');
+                });
+                
+                // Donghua Form Submit
+                document.getElementById('donghua-form').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const donghuaId = formData.get('donghua-id');
+                    
+                    const donghuaData = {
+                        title: formData.get('title'),
+                        description: formData.get('synopsis'),
+                        year: parseInt(formData.get('year')),
+                        status: formData.get('status'),
+                        genre: Array.from(document.getElementById('genres').selectedOptions).map(option => option.value)
+                    };
+                    
+                    // Handle poster image upload (for demo, we're just using placeholder images)
+                    const posterFile = document.getElementById('poster').files[0];
+                    if (posterFile) {
+                        // In a real implementation, you would upload the file to storage
+                        // and then set the URL in donghuaData.poster_url
+                        donghuaData.poster_url = `https://via.placeholder.com/300x450?text=${encodeURIComponent(donghuaData.title)}`;
+                    }
+                    
+                    try {
+                        let result;
+                        
+                        if (donghuaId) {
+                            // Update existing donghua
+                            result = await supabase
+                                .from('donghua')
+                                .update(donghuaData)
+                                .eq('id', donghuaId);
+                        } else {
+                            // Insert new donghua
+                            result = await supabase
+                                .from('donghua')
+                                .insert(donghuaData);
+                        }
+                        
+                        if (result.error) throw result.error;
+                        
+                        // Close modal and reload table
+                        document.getElementById('add-donghua-modal').classList.remove('active');
+                        loadDonghuaTable();
+                        loadDashboardStats();
+                        loadPopularDonghua();
+                        
+                        alert(donghuaId ? 'Donghua updated successfully!' : 'Donghua added successfully!');
+                    } catch (error) {
+                        console.error('Error saving donghua:', error);
+                        alert(`Error: ${error.message || 'Failed to save donghua.'}`);
+                    }
+                });
+                
+                // Episode Form Submit
+                document.getElementById('episode-form').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const episodeId = formData.get('episode-id');
+                    
+                    const episodeData = {
+                        donghua_id: formData.get('episode-donghua'),
+                        title: formData.get('episode-title'),
+                        episode_number: parseInt(formData.get('episode-number')),
+                        duration: parseInt(formData.get('episode-duration')),
+                        video_url: formData.get('video-url'),
+                        is_premium: formData.get('is-premium') === 'on'
+                    };
+                    
+                    // Handle thumbnail upload (for demo, we're just using placeholder images)
+                    const thumbnailFile = document.getElementById('thumbnail').files[0];
+                    if (thumbnailFile) {
+                        // In a real implementation, you would upload the file to storage
+                        // and then set the URL in episodeData.thumbnail_url
+                        episodeData.thumbnail_url = `https://via.placeholder.com/180x100?text=EP${episodeData.episode_number}`;
+                    }
+                    
+                    try {
+                        let result;
+                        
+                        if (episodeId) {
+                            // Update existing episode
+                            result = await supabase
+                                .from('episodes')
+                                .update(episodeData)
+                                .eq('id', episodeId);
+                        } else {
+                            // Insert new episode
+                            result = await supabase
+                                .from('episodes')
+                                .insert(episodeData);
+                        }
+                        
+                        if (result.error) throw result.error;
+                        
+                        // Close modal and reload table
+                        document.getElementById('add-episode-modal').classList.remove('active');
+                        loadEpisodesTable();
+                        loadDashboardStats();
+                        
+                        alert(episodeId ? 'Episode updated successfully!' : 'Episode added successfully!');
+                    } catch (error) {
+                        console.error('Error saving episode:', error);
+                        alert(`Error: ${error.message || 'Failed to save episode.'}`);
+                    }
+                });
+                
+                // Make VIP Form Submit
+                document.getElementById('make-vip-form').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const userId = formData.get('upgrade-user-id');
+                    const subscriptionEnd = new Date(formData.get('subscription-end'));
+                    
+                    try {
+                        // Get user data
+                        const { data: userData, error: userError } = await supabase
+                            .from('users')
+                            .select('name, email')
+                            .eq('user_id', userId)
+                            .single();
+                            
+                        if (userError) throw userError;
+                        
+                        // Insert into vip_users table
+                        const vipData = {
+                            user_id: userId,
+                            name: userData.name,
+                            email: userData.email,
+                            subscription_end: subscriptionEnd.toISOString()
+                        };
+                        
+                        const { error: vipError } = await supabase
+                            .from('vip_users')
+                            .insert(vipData);
+                            
+                        if (vipError) throw vipError;
+                        
+                        // Close modal and reload table
+                        document.getElementById('make-vip-modal').classList.remove('active');
+                        loadUsersTable();
+                        loadDashboardStats();
+                        
+                        alert('User upgraded to VIP successfully!');
+                    } catch (error) {
+                        console.error('Error upgrading user to VIP:', error);
+                        alert(`Error: ${error.message || 'Failed to upgrade user.'}`);
+                    }
+                });
+                
+                // Image upload preview for donghua
+                document.getElementById('poster').addEventListener('change', function(e) {
+                    if (this.files && this.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            document.getElementById('poster-upload-area').style.display = 'none';
+                            document.getElementById('poster-preview').style.display = 'block';
+                            document.getElementById('poster-preview-img').src = e.target.result;
+                        };
+                        reader.readAsDataURL(this.files[0]);
+                    }
+                });
+                
+                // Image upload preview for episode
+                document.getElementById('thumbnail').addEventListener('change', function(e) {
+                    if (this.files && this.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            document.getElementById('thumbnail-upload-area').style.display = 'none';
+                            document.getElementById('thumbnail-preview').style.display = 'block';
+                            document.getElementById('thumbnail-preview-img').src = e.target.result;
+                        };
+                        reader.readAsDataURL(this.files[0]);
+                    }
+                });
+                
+                // Remove image button for donghua
+                document.getElementById('remove-poster').addEventListener('click', function() {
+                    document.getElementById('poster').value = '';
+                    document.getElementById('poster-upload-area').style.display = 'block';
+                    document.getElementById('poster-preview').style.display = 'none';
+                });
+                
+                // Remove image button for episode
+                document.getElementById('remove-thumbnail').addEventListener('click', function() {
+                    document.getElementById('thumbnail').value = '';
+                    document.getElementById('thumbnail-upload-area').style.display = 'block';
+                    document.getElementById('thumbnail-preview').style.display = 'none';
+                });
+                
+                // Confirm Delete Donghua
+                document.getElementById('confirm-delete-donghua').addEventListener('click', async function() {
+                    const donghuaId = this.getAttribute('data-id');
+                    
+                    try {
+                        const { error } = await supabase
+                            .from('donghua')
+                            .delete()
+                            .eq('id', donghuaId);
+                            
+                        if (error) throw error;
+                        
+                        // Close modal and reload table
+                        document.getElementById('delete-donghua-modal').classList.remove('active');
+                        loadDonghuaTable();
+                        loadDashboardStats();
+                        loadPopularDonghua();
+                        
+                        alert('Donghua deleted successfully!');
+                    } catch (error) {
+                        console.error('Error deleting donghua:', error);
+                        alert(`Error: ${error.message || 'Failed to delete donghua.'}`);
+                    }
+                });
+                
+                // Confirm Delete Episode
+                document.getElementById('confirm-delete-episode').addEventListener('click', async function() {
+                    const episodeId = this.getAttribute('data-id');
+                    
+                    try {
+                        const { error } = await supabase
+                            .from('episodes')
+                            .delete()
+                            .eq('id', episodeId);
+                            
+                        if (error) throw error;
+                        
+                        // Close modal and reload table
+                        document.getElementById('delete-episode-modal').classList.remove('active');
+                        loadEpisodesTable();
+                        loadDashboardStats();
+                        
+                        alert('Episode deleted successfully!');
+                    } catch (error) {
+                        console.error('Error deleting episode:', error);
+                        alert(`Error: ${error.message || 'Failed to delete episode.'}`);
+                    }
+                });
+            }
+            
+            // Edit Donghua
+            async function editDonghua(donghuaId) {
+                try {
+                    const { data, error } = await supabase
+                        .from('donghua')
+                        .select('*')
+                        .eq('id', donghuaId)
+                        .single();
+                        
+                    if (error) throw error;
+                    
+                    if (data) {
+                        // Reset form first
+                        resetDonghuaForm();
+                        
+                        // Set form title and button text
+                        document.getElementById('donghua-form-title').textContent = 'Edit Donghua';
+                        document.getElementById('donghua-submit-btn').textContent = 'Update Donghua';
+                        
+                        // Populate form fields
+                        document.getElementById('donghua-id').value = data.id;
+                        document.getElementById('title').value = data.title || '';
+                        document.getElementById('synopsis').value = data.description || '';
+                        document.getElementById('year').value = data.year || '';
+                        document.getElementById('status').value = data.status || 'ongoing';
+                        
+                        // Set genres
+                        if (data.genre && data.genre.length > 0) {
+                            const genreSelect = document.getElementById('genres');
+                            
+                            for (const option of genreSelect.options) {
+                                if (data.genre.includes(option.value)) {
+                                    option.selected = true;
+                                }
+                            }
+                        }
+                        
+                        // Show poster preview if available
+                        if (data.poster_url) {
+                            document.getElementById('poster-upload-area').style.display = 'none';
+                            document.getElementById('poster-preview').style.display = 'block';
+                            document.getElementById('poster-preview-img').src = data.poster_url;
+                        }
+                        
+                        // Show the modal
+                        document.getElementById('add-donghua-modal').classList.add('active');
+                    }
+                } catch (error) {
+                    console.error('Error fetching donghua data:', error);
+                    alert(`Error: ${error.message || 'Failed to fetch donghua data for editing.'}`);
+                }
+            }
+            
+            // Edit Episode
+            async function editEpisode(episodeId) {
+                try {
+                    const { data, error } = await supabase
+                        .from('episodes')
+                        .select('*')
+                        .eq('id', episodeId)
+                        .single();
+                        
+                    if (error) throw error;
+                    
+                    if (data) {
+                        // Reset form first
+                        resetEpisodeForm();
+                        
+                        // Set form title and button text
+                        document.getElementById('episode-form-title').textContent = 'Edit Episode';
+                        document.getElementById('episode-submit-btn').textContent = 'Update Episode';
+                        
+                        // Populate form fields
+                        document.getElementById('episode-id').value = data.id;
+                        document.getElementById('episode-donghua').value = data.donghua_id;
+                        document.getElementById('episode-title').value = data.title || '';
+                        document.getElementById('episode-number').value = data.episode_number || '';
+                        document.getElementById('episode-duration').value = data.duration || '';
+                        document.getElementById('video-url').value = data.video_url || '';
+                        document.getElementById('is-premium').checked = data.is_premium || false;
+                        
+                        // Show thumbnail preview if available
+                        if (data.thumbnail_url) {
+                            document.getElementById('thumbnail-upload-area').style.display = 'none';
+                            document.getElementById('thumbnail-preview').style.display = 'block';
+                            document.getElementById('thumbnail-preview-img').src = data.thumbnail_url;
+                        }
+                        
+                        // Show the modal
+                        document.getElementById('add-episode-modal').classList.add('active');
+                    }
+                } catch (error) {
+                    console.error('Error fetching episode data:', error);
+                    alert(`Error: ${error.message || 'Failed to fetch episode data for editing.'}`);
+                }
+            }
+            
+            // Show Delete Donghua Modal
+            function showDeleteDonghuaModal(donghuaId, title) {
+                document.getElementById('delete-donghua-title').textContent = title;
+                document.getElementById('confirm-delete-donghua').setAttribute('data-id', donghuaId);
+                document.getElementById('delete-donghua-modal').classList.add('active');
+            }
+            
+            // Show Delete Episode Modal
+            function showDeleteEpisodeModal(episodeId, title) {
+                document.getElementById('delete-episode-title').textContent = title;
+                document.getElementById('confirm-delete-episode').setAttribute('data-id', episodeId);
+                document.getElementById('delete-episode-modal').classList.add('active');
+            }
+            
+            // Show Make VIP Modal
+            function showMakeVipModal(userId, name) {
+                document.getElementById('upgrade-user-name').textContent = name;
+                document.getElementById('upgrade-user-id').value = userId;
+                
+                // Set default subscription end date to 1 year from now
+                const oneYearLater = new Date();
+                oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+                document.getElementById('subscription-end').value = oneYearLater.toISOString().split('T')[0];
+                
+                document.getElementById('make-vip-modal').classList.add('active');
+            }
+            
+            // Reset Donghua Form
+            function resetDonghuaForm() {
+                document.getElementById('donghua-form').reset();
+                document.getElementById('donghua-id').value = '';
+                document.getElementById('poster-upload-area').style.display = 'block';
+                document.getElementById('poster-preview').style.display = 'none';
+            }
+            
+            // Reset Episode Form
+            function resetEpisodeForm() {
+                document.getElementById('episode-form').reset();
+                document.getElementById('episode-id').value = '';
+                document.getElementById('thumbnail-upload-area').style.display = 'block';
+                document.getElementById('thumbnail-preview').style.display = 'none';
+            }
         });
     </script>
 </body>
