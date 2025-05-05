@@ -7,6 +7,8 @@
     <title>DonghuaWave - Home</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
 </head>
 <body>
     <header>
@@ -22,12 +24,12 @@
                     <li><a href="#" id="genres">Genres</a></li>
                 </ul>
             </nav>
-            <div class="user-actions">
+            <div class="user-actions" id="userActionsContainer">
                 <div class="search-box">
                     <input type="text" placeholder="Search...">
                     <button><i class="fas fa-search"></i></button>
                 </div>
-                <a href="login.html" class="login-btn">Login</a>
+                <a href="login.html" class="login-btn" id="loginButton">Login</a>
             </div>
         </div>
     </header>
@@ -49,8 +51,9 @@
                     <h2>Featured Donghua</h2>
                     <a href="#" class="view-all">View All</a>
                 </div>
-                <div class="donghua-grid">
+                <div class="donghua-grid" id="featuredGrid">
                     <!-- Donghua items will be loaded here by JavaScript -->
+                    <div class="loading-indicator">Loading featured content...</div>
                 </div>
             </div>
         </section>
@@ -61,8 +64,9 @@
                     <h2>New Releases</h2>
                     <a href="#" class="view-all">View All</a>
                 </div>
-                <div class="donghua-grid">
+                <div class="donghua-grid" id="newReleasesGrid">
                     <!-- Donghua items will be loaded here by JavaScript -->
+                    <div class="loading-indicator">Loading new releases...</div>
                 </div>
             </div>
         </section>
@@ -73,8 +77,9 @@
                     <h2>Popular This Week</h2>
                     <a href="#" class="view-all">View All</a>
                 </div>
-                <div class="donghua-grid">
+                <div class="donghua-grid" id="popularGrid">
                     <!-- Donghua items will be loaded here by JavaScript -->
+                    <div class="loading-indicator">Loading popular content...</div>
                 </div>
             </div>
         </section>
@@ -101,7 +106,7 @@
                         <h3>Account</h3>
                         <ul>
                             <li><a href="login.html">Login</a></li>
-                            <li><a href="#">Register</a></li>
+                            <li><a href="login.html" id="signup-footer">Register</a></li>
                             <li><a href="#">Forgot Password</a></li>
                         </ul>
                     </div>
@@ -129,63 +134,65 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Sample donghua data - in a real app this would come from a database
-            const donghuaData = [
-                {
-                    id: 1,
-                    title: "The King's Avatar",
-                    poster: "https://via.placeholder.com/300x450?text=The+King's+Avatar",
-                    rating: 4.8,
-                    year: 2019
-                },
-                {
-                    id: 2,
-                    title: "Soul Land",
-                    poster: "https://via.placeholder.com/300x450?text=Soul+Land",
-                    rating: 4.7,
-                    year: 2018
-                },
-                {
-                    id: 3,
-                    title: "Battle Through The Heavens",
-                    poster: "https://via.placeholder.com/300x450?text=Battle+Through+The+Heavens",
-                    rating: 4.5,
-                    year: 2017
-                },
-                {
-                    id: 4,
-                    title: "Tales of Demons and Gods",
-                    poster: "https://via.placeholder.com/300x450?text=Tales+of+Demons+and+Gods",
-                    rating: 4.6,
-                    year: 2020
-                },
-                {
-                    id: 5,
-                    title: "Martial Universe",
-                    poster: "https://via.placeholder.com/300x450?text=Martial+Universe",
-                    rating: 4.3,
-                    year: 2018
-                },
-                {
-                    id: 6,
-                    title: "A Record of a Mortal's Journey to Immortality",
-                    poster: "https://via.placeholder.com/300x450?text=A+Record+of+a+Mortal's+Journey",
-                    rating: 4.4,
-                    year: 2020
+            // Initialize Supabase client
+            const SUPABASE_URL = "https://xsofijbnzfiiteutpeza.supabase.co";
+            const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhzb2ZpamJuemZpaXRldXRwZXphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY0MTYyOTIsImV4cCI6MjA2MTk5MjI5Mn0.JEsqm4EHoCXYQHrlCIF4eL8e7oF2V5IFhxO1eSIzcbw";
+            const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            
+            // Check authentication status
+            checkAuthStatus();
+            
+            // Function to check if user is logged in
+            async function checkAuthStatus() {
+                const { data: { session } } = await supabase.auth.getSession();
+                const userActionsContainer = document.getElementById('userActionsContainer');
+                
+                if (session) {
+                    // User is logged in
+                    const { data: userData } = await supabase.from('users').select('*').eq('user_id', session.user.id).single();
+                    
+                    // Check if user is VIP
+                    const { data: vipData } = await supabase.from('vip_users').select('*').eq('user_id', session.user.id).maybeSingle();
+                    
+                    let userStatus = 'free';
+                    if (vipData) {
+                        userStatus = 'vip';
+                    }
+                    
+                    // Update UI to show logged in state
+                    userActionsContainer.innerHTML = `
+                        <div class="search-box">
+                            <input type="text" placeholder="Search...">
+                            <button><i class="fas fa-search"></i></button>
+                        </div>
+                        <div class="user-menu">
+                            <span class="username">${userData?.name || session.user.email}</span>
+                            ${userStatus === 'vip' ? '<span class="vip-badge">VIP</span>' : ''}
+                            <div class="user-dropdown">
+                                <a href="user.html">My Account</a>
+                                <a href="#" id="logoutButton">Logout</a>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add logout functionality
+                    document.getElementById('logoutButton').addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        await supabase.auth.signOut();
+                        window.location.reload();
+                    });
                 }
-            ];
+            }
 
-            // Function to create donghua cards
+            // Function to create donghua cards from Supabase data
             function createDonghuaCard(donghua) {
                 return `
                     <div class="donghua-card" data-id="${donghua.id}">
                         <div class="poster">
-                            <img src="${donghua.poster}" alt="${donghua.title}">
+                            <img src="${donghua.poster_url || 'https://via.placeholder.com/300x450?text=' + encodeURIComponent(donghua.title)}" alt="${donghua.title}">
                             <div class="overlay">
-                                <div class="rating">
-                                    <i class="fas fa-star"></i> ${donghua.rating}
-                                </div>
-                                <div class="year">${donghua.year}</div>
+                                ${donghua.rating ? `<div class="rating"><i class="fas fa-star"></i> ${donghua.rating}</div>` : ''}
+                                ${donghua.year ? `<div class="year">${donghua.year}</div>` : ''}
                                 <a href="donghua.html?id=${donghua.id}" class="btn-watch">Watch Now</a>
                             </div>
                         </div>
@@ -196,45 +203,130 @@
                 `;
             }
 
-            // Populate the donghua grid
-            const donghuaGrids = document.querySelectorAll('.donghua-grid');
-            donghuaGrids.forEach(grid => {
-                let gridHTML = '';
-                donghuaData.forEach(donghua => {
-                    gridHTML += createDonghuaCard(donghua);
-                });
-                grid.innerHTML = gridHTML;
-            });
+            // Function to fetch and display donghua
+            async function fetchAndDisplayDonghua(category, elementId, limit = 6) {
+                const grid = document.getElementById(elementId);
+                
+                try {
+                    let query = supabase.from('donghua').select('*');
+                    
+                    // Apply filters based on category
+                    switch (category) {
+                        case 'featured':
+                            // For featured, just get the most recent ones with posters
+                            query = query.not('poster_url', 'is', null).order('created_at', { ascending: false });
+                            break;
+                        case 'new':
+                            // For new releases, order by creation date
+                            query = query.order('year', { ascending: false });
+                            break;
+                        case 'popular':
+                            // For popular, we could implement this based on views or a popularity field
+                            // For now, just get random ones
+                            query = query.order('created_at', { ascending: false });
+                            break;
+                    }
+                    
+                    // Apply limit
+                    query = query.limit(limit);
+                    
+                    const { data: donghuaData, error } = await query;
+                    
+                    if (error) {
+                        throw error;
+                    }
+                    
+                    if (donghuaData && donghuaData.length > 0) {
+                        let gridHTML = '';
+                        donghuaData.forEach(donghua => {
+                            gridHTML += createDonghuaCard(donghua);
+                        });
+                        grid.innerHTML = gridHTML;
+                        
+                        // Add click events
+                        const donghuaCards = grid.querySelectorAll('.donghua-card');
+                        donghuaCards.forEach(card => {
+                            card.addEventListener('click', (e) => {
+                                // Prevent click if the click is on the button
+                                if (e.target.classList.contains('btn-watch') || 
+                                    e.target.closest('.btn-watch')) {
+                                    return;
+                                }
+                                const id = card.getAttribute('data-id');
+                                window.location.href = `donghua.html?id=${id}`;
+                            });
+                        });
+                    } else {
+                        grid.innerHTML = '<p class="no-results">No content available.</p>';
+                    }
+                } catch (error) {
+                    console.error(`Error fetching ${category} donghua:`, error);
+                    grid.innerHTML = '<p class="error">Failed to load content. Please try again later.</p>';
+                }
+            }
 
-            // Add click event on donghua cards
-            const donghuaCards = document.querySelectorAll('.donghua-card');
-            donghuaCards.forEach(card => {
-                card.addEventListener('click', () => {
-                    const id = card.getAttribute('data-id');
-                    window.location.href = `donghua.html?id=${id}`;
-                });
-            });
+            // Fetch and display different categories of donghua
+            fetchAndDisplayDonghua('featured', 'featuredGrid');
+            fetchAndDisplayDonghua('new', 'newReleasesGrid');
+            fetchAndDisplayDonghua('popular', 'popularGrid');
 
             // Search functionality
             const searchBox = document.querySelector('.search-box input');
             const searchButton = document.querySelector('.search-box button');
 
-            function performSearch() {
-                const searchTerm = searchBox.value.toLowerCase();
-                if (searchTerm.trim() !== '') {
-                    const filteredDonghua = donghuaData.filter(donghua => 
-                        donghua.title.toLowerCase().includes(searchTerm)
-                    );
-                    
-                    const firstGrid = document.querySelector('.donghua-grid');
-                    firstGrid.innerHTML = '';
-                    
-                    if (filteredDonghua.length > 0) {
-                        filteredDonghua.forEach(donghua => {
-                            firstGrid.innerHTML += createDonghuaCard(donghua);
-                        });
-                    } else {
-                        firstGrid.innerHTML = '<p class="no-results">No results found.</p>';
+            async function performSearch() {
+                const searchTerm = searchBox.value.toLowerCase().trim();
+                if (searchTerm !== '') {
+                    try {
+                        const { data: searchResults, error } = await supabase
+                            .from('donghua')
+                            .select('*')
+                            .ilike('title', `%${searchTerm}%`)
+                            .limit(12);
+                        
+                        if (error) throw error;
+                        
+                        const featuredGrid = document.getElementById('featuredGrid');
+                        
+                        if (searchResults && searchResults.length > 0) {
+                            let gridHTML = '';
+                            searchResults.forEach(donghua => {
+                                gridHTML += createDonghuaCard(donghua);
+                            });
+                            featuredGrid.innerHTML = gridHTML;
+                            
+                            // Update section title
+                            const sectionHeader = document.querySelector('#featured .section-header h2');
+                            sectionHeader.textContent = `Search Results: "${searchTerm}"`;
+                            
+                            // Scroll to results
+                            document.getElementById('featured').scrollIntoView({ behavior: 'smooth' });
+                            
+                            // Add click events
+                            const donghuaCards = featuredGrid.querySelectorAll('.donghua-card');
+                            donghuaCards.forEach(card => {
+                                card.addEventListener('click', (e) => {
+                                    if (e.target.classList.contains('btn-watch') || 
+                                        e.target.closest('.btn-watch')) {
+                                        return;
+                                    }
+                                    const id = card.getAttribute('data-id');
+                                    window.location.href = `donghua.html?id=${id}`;
+                                });
+                            });
+                        } else {
+                            featuredGrid.innerHTML = '<p class="no-results">No results found for your search.</p>';
+                            
+                            // Update section title
+                            const sectionHeader = document.querySelector('#featured .section-header h2');
+                            sectionHeader.textContent = `No Results: "${searchTerm}"`;
+                            
+                            // Scroll to results
+                            document.getElementById('featured').scrollIntoView({ behavior: 'smooth' });
+                        }
+                    } catch (error) {
+                        console.error('Search error:', error);
+                        document.getElementById('featuredGrid').innerHTML = '<p class="error">Search failed. Please try again later.</p>';
                     }
                 }
             }
@@ -245,6 +337,15 @@
                     performSearch();
                 }
             });
+            
+            // Modal functionality for signup (footer link)
+            const signupFooterLink = document.getElementById('signup-footer');
+            if (signupFooterLink) {
+                signupFooterLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.location.href = 'login.html#signup';
+                });
+            }
         });
     </script>
 </body>
