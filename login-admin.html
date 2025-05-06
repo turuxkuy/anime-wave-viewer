@@ -54,7 +54,7 @@
             // Initialize Supabase client
             const SUPABASE_URL = "https://xsofijbnzfiiteutpeza.supabase.co";
             const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhzb2ZpamJuemZpaXRldXRwZXphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY0MTYyOTIsImV4cCI6MjA2MTk5MjI5Mn0.JEsqm4EHoCXYQHrlCIF4eL8e7oF2V5IFhxO1eSIzcbw";
-            const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             
             // Toggle password visibility
             const togglePassword = document.querySelector('.toggle-password');
@@ -81,7 +81,7 @@
                     errorMessage.textContent = 'Verifying admin credentials...';
                     
                     // Authenticate with Supabase
-                    const { data, error } = await supabase.auth.signInWithPassword({
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({
                         email: email,
                         password: password
                     });
@@ -89,7 +89,7 @@
                     if (error) throw error;
                     
                     // Check if user is in admins table
-                    const { data: adminData, error: adminError } = await supabase
+                    const { data: adminData, error: adminError } = await supabaseClient
                         .from('admins')
                         .select('id')
                         .eq('user_id', data.user.id)
