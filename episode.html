@@ -7,6 +7,7 @@
     <title>DonghuaWave - Watch Episode</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="episode-page">
     <header class="episode-header">
@@ -29,7 +30,21 @@
                     <input type="text" placeholder="Search...">
                     <button><i class="fas fa-search"></i></button>
                 </div>
-                <a href="login.html" class="login-btn">Login</a>
+                <a href="login.html" class="login-btn" id="login-btn">Login</a>
+                <div class="user-menu" style="display: none;">
+                    <button class="user-menu-btn">
+                        <img src="https://via.placeholder.com/40" alt="User" class="avatar" id="user-avatar">
+                        <span id="user-name">User</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="user-dropdown">
+                        <ul>
+                            <li><a href="user.html"><i class="fas fa-user"></i> Dashboard</a></li>
+                            <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                            <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
@@ -190,197 +205,444 @@
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initialize Supabase client
+            const SUPABASE_URL = "https://xsofijbnzfiiteutpeza.supabase.co";
+            const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhzb2ZpamJuemZpaXRldXRwZXphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY0MTYyOTIsImV4cCI6MjA2MTk5MjI5Mn0.JEsqm4EHoCXYQHrlCIF4eL8e7oF2V5IFhxO1eSIzcbw";
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            
+            // Check if user is logged in
+            const { data: { session } } = await supabase.auth.getSession();
+            const isLoggedIn = !!session;
+            
+            // Update UI based on login status
+            const loginBtn = document.getElementById('login-btn');
+            const userMenu = document.querySelector('.user-menu');
+            
+            if (isLoggedIn) {
+                // User is logged in
+                loginBtn.style.display = 'none';
+                userMenu.style.display = 'block';
+                
+                // Update user information
+                document.getElementById('user-name').textContent = session.user.user_metadata.name || session.user.email.split('@')[0];
+                
+                // Add logout functionality
+                document.getElementById('logout-btn').addEventListener('click', async () => {
+                    await supabase.auth.signOut();
+                    window.location.href = 'index.html';
+                });
+            } else {
+                // User is not logged in
+                loginBtn.style.display = 'block';
+                userMenu.style.display = 'none';
+            }
+            
             // Get params from URL
             const urlParams = new URLSearchParams(window.location.search);
             const donghuaId = urlParams.get('donghua') || '1'; // Default to ID 1 if not specified
             const episodeNumber = urlParams.get('ep') || '1'; // Default to episode 1 if not specified
             
-            // Sample donghua data - in a real app this would come from a database
-            const donghuaData = {
-                '1': {
-                    title: "The King's Avatar",
-                    totalEpisodes: 24,
-                    episodes: {
-                        '1': {
-                            title: "Glory's Beginning",
-                            synopsis: "Ye Xiu, once the legendary 'Battle God' of the popular MMORPG Glory, is forced into retirement by his team. He takes a job as a night manager at a nearby internet café, where he discovers the tenth server of Glory just launched. He creates a new character named 'Lord Grim' and begins his journey anew.",
-                            duration: "24:30",
-                            releaseDate: "May 1, 2025",
-                            thumbnail: "https://via.placeholder.com/180x100?text=KA-E1"
-                        },
-                        '2': {
-                            title: "Unspecialized",
-                            synopsis: "Ye Xiu continues his journey in Glory's tenth server with his unspecialized character 'Lord Grim'. Using his deep knowledge of the game, he begins building a reputation with his unique playing style and self-made weapon, attracting attention from both casual players and professionals alike.",
-                            duration: "24:15",
-                            releaseDate: "May 8, 2025",
-                            thumbnail: "https://via.placeholder.com/180x100?text=KA-E2"
-                        }
-                        // More episodes would be here
+            // Fetch donghua and episode data from Supabase
+            async function fetchEpisodeData() {
+                try {
+                    // First try to fetch the episode directly from Supabase
+                    const { data: episodeData, error: episodeError } = await supabase
+                        .from('episodes')
+                        .select(`
+                            id,
+                            title,
+                            episode_number,
+                            duration,
+                            thumbnail_url,
+                            video_url,
+                            donghua_id,
+                            donghua:donghua_id (
+                                id,
+                                title,
+                                description,
+                                poster_url
+                            )
+                        `)
+                        .eq('donghua_id', donghuaId)
+                        .eq('episode_number', episodeNumber)
+                        .single();
+                        
+                    if (episodeError) {
+                        console.error('Error fetching episode data:', episodeError);
+                        // Fallback to sample data if Supabase fetch fails
+                        return useSampleData();
                     }
-                },
-                '2': {
-                    title: "Soul Land",
-                    totalEpisodes: 183,
-                    episodes: {
-                        '1': {
-                            title: "Reincarnation",
-                            synopsis: "Tang San, a master in hidden weapons from the Tang Sect, steals the sect's most sacred lore and commits suicide by jumping off a cliff. He is reborn in a new world where everyone possesses a spirit, and those with powerful spirits can become Spirit Masters.",
-                            duration: "22:45",
-                            releaseDate: "June 15, 2025",
-                            thumbnail: "https://via.placeholder.com/180x100?text=SL-E1"
-                        }
-                        // More episodes would be here
+                    
+                    if (episodeData) {
+                        return {
+                            donghua: {
+                                id: episodeData.donghua.id,
+                                title: episodeData.donghua.title,
+                                totalEpisodes: await getTotalEpisodes(donghuaId)
+                            },
+                            episode: {
+                                id: episodeData.id,
+                                title: episodeData.title,
+                                synopsis: episodeData.donghua.description || "No synopsis available.",
+                                duration: episodeData.duration ? `${Math.floor(episodeData.duration / 60)}:${(episodeData.duration % 60).toString().padStart(2, '0')}` : "Unknown",
+                                releaseDate: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+                                thumbnail: episodeData.thumbnail_url || `https://via.placeholder.com/180x100?text=${encodeURIComponent(episodeData.title)}`,
+                                video: episodeData.video_url
+                            }
+                        };
+                    } else {
+                        // No data found in Supabase, use sample data
+                        return useSampleData();
                     }
+                } catch (error) {
+                    console.error('Error:', error);
+                    return useSampleData();
                 }
-                // More donghua would be here
-            };
-
-            // Get the donghua and episode details
-            const donghua = donghuaData[donghuaId];
+            }
             
-            if (donghua) {
-                const episode = donghua.episodes[episodeNumber];
-                
-                if (episode) {
-                    // Update page title
-                    document.title = `DonghuaWave - ${donghua.title} - S1 E${episodeNumber}`;
+            // Get total episode count for a donghua
+            async function getTotalEpisodes(donghuaId) {
+                const { count, error } = await supabase
+                    .from('episodes')
+                    .select('id', { count: 'exact' })
+                    .eq('donghua_id', donghuaId);
                     
-                    // Update DOM elements with episode details
-                    document.getElementById('donghua-title').textContent = donghua.title;
-                    document.getElementById('episode-title').textContent = `S1 E${episodeNumber}: ${episode.title}`;
-                    document.getElementById('episode-synopsis').textContent = episode.synopsis;
-                    document.getElementById('release-date').textContent = `Released: ${episode.releaseDate}`;
-                    document.getElementById('episode-duration').textContent = `Duration: ${episode.duration}`;
-                    
-                    // Handle navigation buttons
-                    const prevEpisodeBtn = document.getElementById('prev-episode');
-                    const nextEpisodeBtn = document.getElementById('next-episode');
-                    
-                    if (episodeNumber <= 1) {
-                        prevEpisodeBtn.disabled = true;
-                        prevEpisodeBtn.classList.add('disabled');
-                    } else {
-                        prevEpisodeBtn.onclick = () => {
-                            window.location.href = `episode.html?donghua=${donghuaId}&ep=${Number(episodeNumber) - 1}`;
-                        };
-                    }
-                    
-                    if (episodeNumber >= donghua.totalEpisodes) {
-                        nextEpisodeBtn.disabled = true;
-                        nextEpisodeBtn.classList.add('disabled');
-                    } else {
-                        nextEpisodeBtn.onclick = () => {
-                            window.location.href = `episode.html?donghua=${donghuaId}&ep=${Number(episodeNumber) + 1}`;
-                        };
-                    }
-                    
-                    // Record watch history - in a real app with Supabase:
-                    /*
-                    async function recordHistory() {
-                        // Check if user is logged in
-                        const { data: { user } } = await supabase.auth.getUser();
-                        
-                        if (user) {
-                            const { data, error } = await supabase
-                                .from('history')
-                                .upsert({
-                                    user_id: user.id,
-                                    donghua_id: donghuaId,
-                                    episode: episodeNumber,
-                                    progress: 0, // Starting at beginning
-                                    watched_at: new Date()
-                                });
-                            
-                            if (error) console.error('Error recording history:', error);
-                        }
-                    }
-                    
-                    recordHistory();
-                    */
-                    
-                    // Populate episode list modal
-                    const episodeListBtn = document.getElementById('episode-list-btn');
-                    const episodeListModal = document.getElementById('episode-list-modal');
-                    const closeModalBtn = document.querySelector('.close-modal');
-                    const modalEpisodeList = document.getElementById('modal-episode-list');
-                    
-                    // Generate episodes for the modal
-                    let episodeListHTML = '';
-                    for (let i = 1; i <= donghua.totalEpisodes; i++) {
-                        const ep = donghua.episodes[i] || {
-                            title: `Episode ${i}`,
-                            duration: "24:00",
-                            thumbnail: `https://via.placeholder.com/120x68?text=${donghua.title}-E${i}`
-                        };
-                        
-                        const isCurrentEpisode = i === Number(episodeNumber);
-                        
-                        episodeListHTML += `
-                            <div class="modal-episode-item ${isCurrentEpisode ? 'current' : ''}">
-                                <div class="modal-episode-number">EP ${i}</div>
-                                <div class="modal-episode-thumbnail">
-                                    <img src="${ep.thumbnail}" alt="Episode ${i}">
-                                    ${isCurrentEpisode ? '<div class="current-marker">WATCHING</div>' : ''}
-                                </div>
-                                <div class="modal-episode-details">
-                                    <h4>${ep.title}</h4>
-                                    <span>${ep.duration}</span>
-                                </div>
-                                <a href="episode.html?donghua=${donghuaId}&ep=${i}" class="modal-episode-link"></a>
-                            </div>
-                        `;
-                    }
-                    
-                    modalEpisodeList.innerHTML = episodeListHTML;
-                    
-                    // Modal toggle functionality
-                    episodeListBtn.addEventListener('click', () => {
-                        episodeListModal.classList.add('active');
-                    });
-                    
-                    closeModalBtn.addEventListener('click', () => {
-                        episodeListModal.classList.remove('active');
-                    });
-                    
-                    // Close modal when clicking outside
-                    episodeListModal.addEventListener('click', (e) => {
-                        if (e.target === episodeListModal) {
-                            episodeListModal.classList.remove('active');
-                        }
-                    });
-                    
-                    // Generate recommended donghua
-                    generateRecommendedDonghua();
-                    
-                } else {
-                    // Handle case where episode is not found
-                    document.querySelector('.episode-content').innerHTML = `
-                        <div class="container">
-                            <div class="error-message">
-                                <h2>Episode Not Found</h2>
-                                <p>Sorry, the episode you're looking for doesn't exist or has been removed.</p>
-                                <a href="donghua.html?id=${donghuaId}" class="btn-primary">Return to Donghua</a>
-                            </div>
-                        </div>
-                    `;
+                if (error) {
+                    console.error('Error counting episodes:', error);
+                    return 24; // Default value
                 }
-            } else {
-                // Handle case where donghua is not found
-                document.querySelector('.episode-content').innerHTML = `
-                    <div class="container">
-                        <div class="error-message">
-                            <h2>Donghua Not Found</h2>
-                            <p>Sorry, the donghua you're looking for doesn't exist or has been removed.</p>
-                            <a href="index.html" class="btn-primary">Return to Home</a>
-                        </div>
-                    </div>
-                `;
+                
+                return count || 24;
+            }
+            
+            // Fallback to sample data if Supabase fetch fails
+            function useSampleData() {
+                // Sample donghua data as fallback
+                const donghuaData = {
+                    '1': {
+                        title: "The King's Avatar",
+                        totalEpisodes: 24,
+                        episodes: {
+                            '1': {
+                                title: "Glory's Beginning",
+                                synopsis: "Ye Xiu, once the legendary 'Battle God' of the popular MMORPG Glory, is forced into retirement by his team. He takes a job as a night manager at a nearby internet café, where he discovers the tenth server of Glory just launched. He creates a new character named 'Lord Grim' and begins his journey anew.",
+                                duration: "24:30",
+                                releaseDate: "May 1, 2025",
+                                thumbnail: "https://via.placeholder.com/180x100?text=KA-E1"
+                            },
+                            '2': {
+                                title: "Unspecialized",
+                                synopsis: "Ye Xiu continues his journey in Glory's tenth server with his unspecialized character 'Lord Grim'. Using his deep knowledge of the game, he begins building a reputation with his unique playing style and self-made weapon, attracting attention from both casual players and professionals alike.",
+                                duration: "24:15",
+                                releaseDate: "May 8, 2025",
+                                thumbnail: "https://via.placeholder.com/180x100?text=KA-E2"
+                            }
+                        }
+                    },
+                    '2': {
+                        title: "Soul Land",
+                        totalEpisodes: 183,
+                        episodes: {
+                            '1': {
+                                title: "Reincarnation",
+                                synopsis: "Tang San, a master in hidden weapons from the Tang Sect, steals the sect's most sacred lore and commits suicide by jumping off a cliff. He is reborn in a new world where everyone possesses a spirit, and those with powerful spirits can become Spirit Masters.",
+                                duration: "22:45",
+                                releaseDate: "June 15, 2025",
+                                thumbnail: "https://via.placeholder.com/180x100?text=SL-E1"
+                            }
+                        }
+                    }
+                };
+
+                const donghua = donghuaData[donghuaId] || donghuaData['1'];
+                const episode = donghua.episodes[episodeNumber] || donghua.episodes['1'];
+                
+                return { donghua, episode };
             }
 
-            // Function to generate recommended donghua
-            function generateRecommendedDonghua() {
-                const recommendedDonghua = [
+            // Fetch episode data
+            const data = await fetchEpisodeData();
+            const { donghua, episode } = data;
+            
+            // Update page title
+            document.title = `DonghuaWave - ${donghua.title} - S1 E${episodeNumber}`;
+            
+            // Update DOM elements with episode details
+            document.getElementById('donghua-title').textContent = donghua.title;
+            document.getElementById('episode-title').textContent = `S1 E${episodeNumber}: ${episode.title}`;
+            document.getElementById('episode-synopsis').textContent = episode.synopsis;
+            document.getElementById('release-date').textContent = `Released: ${episode.releaseDate}`;
+            document.getElementById('episode-duration').textContent = `Duration: ${episode.duration}`;
+            
+            // Set video placeholder or actual video
+            const videoPlaceholder = document.getElementById('video-placeholder');
+            if (episode.video) {
+                // If we have an actual video URL, replace the placeholder with a video element
+                const videoPlayer = document.createElement('video');
+                videoPlayer.src = episode.video;
+                videoPlayer.controls = true;
+                videoPlayer.id = 'video-player';
+                videoPlayer.className = 'video-element';
+                videoPlayer.poster = episode.thumbnail;
+                videoPlaceholder.parentNode.replaceChild(videoPlayer, videoPlaceholder);
+            }
+            
+            // Handle navigation buttons
+            const prevEpisodeBtn = document.getElementById('prev-episode');
+            const nextEpisodeBtn = document.getElementById('next-episode');
+            
+            if (episodeNumber <= 1) {
+                prevEpisodeBtn.disabled = true;
+                prevEpisodeBtn.classList.add('disabled');
+            } else {
+                prevEpisodeBtn.onclick = () => {
+                    window.location.href = `episode.html?donghua=${donghuaId}&ep=${Number(episodeNumber) - 1}`;
+                };
+            }
+            
+            if (episodeNumber >= donghua.totalEpisodes) {
+                nextEpisodeBtn.disabled = true;
+                nextEpisodeBtn.classList.add('disabled');
+            } else {
+                nextEpisodeBtn.onclick = () => {
+                    window.location.href = `episode.html?donghua=${donghuaId}&ep=${Number(episodeNumber) + 1}`;
+                };
+            }
+            
+            // Record watch history if user is logged in
+            if (isLoggedIn) {
+                try {
+                    // Check for existing history entry
+                    const { data: existingHistory } = await supabase
+                        .from('history')
+                        .select('id, progress, is_completed')
+                        .eq('user_id', session.user.id)
+                        .eq('episode_id', episode.id)
+                        .maybeSingle();
+                    
+                    if (existingHistory) {
+                        // Update existing history entry
+                        await supabase
+                            .from('history')
+                            .update({
+                                progress: existingHistory.progress || 0,
+                                watched_at: new Date()
+                            })
+                            .eq('id', existingHistory.id);
+                    } else {
+                        // Create new history entry
+                        await supabase
+                            .from('history')
+                            .insert({
+                                user_id: session.user.id,
+                                episode_id: episode.id,
+                                progress: 0,
+                                is_completed: false,
+                                watched_at: new Date()
+                            });
+                    }
+                    
+                    // Add event listener to track video progress
+                    const videoElement = document.getElementById('video-player');
+                    if (videoElement) {
+                        let lastProgressUpdate = 0;
+                        
+                        videoElement.addEventListener('timeupdate', async () => {
+                            const currentTime = videoElement.currentTime;
+                            const duration = videoElement.duration;
+                            const progressPercentage = Math.floor((currentTime / duration) * 100);
+                            
+                            // Only update progress every 5 seconds to avoid too many API calls
+                            if (Date.now() - lastProgressUpdate > 5000 && progressPercentage > 0) {
+                                lastProgressUpdate = Date.now();
+                                
+                                await supabase
+                                    .from('history')
+                                    .update({
+                                        progress: progressPercentage,
+                                        is_completed: progressPercentage >= 90, // Mark as completed if watched 90% or more
+                                        watched_at: new Date()
+                                    })
+                                    .eq('user_id', session.user.id)
+                                    .eq('episode_id', episode.id);
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error recording watch history:', error);
+                }
+                
+                // Set up bookmark functionality
+                const bookmarkBtn = document.querySelector('.bookmark-btn');
+                
+                // Check if already bookmarked
+                const { data: existingBookmark } = await supabase
+                    .from('bookmarks')
+                    .select('id')
+                    .eq('user_id', session.user.id)
+                    .eq('donghua_id', donghuaId)
+                    .maybeSingle();
+                    
+                if (existingBookmark) {
+                    // Already bookmarked
+                    bookmarkBtn.querySelector('i').classList.remove('far');
+                    bookmarkBtn.querySelector('i').classList.add('fas');
+                    bookmarkBtn.querySelector('span').textContent = 'Saved';
+                }
+                
+                // Toggle bookmark status
+                bookmarkBtn.addEventListener('click', async () => {
+                    const isBookmarked = bookmarkBtn.querySelector('i').classList.contains('fas');
+                    
+                    if (isBookmarked) {
+                        // Remove bookmark
+                        const { error } = await supabase
+                            .from('bookmarks')
+                            .delete()
+                            .eq('user_id', session.user.id)
+                            .eq('donghua_id', donghuaId);
+                            
+                        if (!error) {
+                            bookmarkBtn.querySelector('i').classList.remove('fas');
+                            bookmarkBtn.querySelector('i').classList.add('far');
+                            bookmarkBtn.querySelector('span').textContent = 'Save';
+                        }
+                    } else {
+                        // Add bookmark
+                        const { error } = await supabase
+                            .from('bookmarks')
+                            .insert({
+                                user_id: session.user.id,
+                                donghua_id: donghuaId
+                            });
+                            
+                        if (!error) {
+                            bookmarkBtn.querySelector('i').classList.remove('far');
+                            bookmarkBtn.querySelector('i').classList.add('fas');
+                            bookmarkBtn.querySelector('span').textContent = 'Saved';
+                        }
+                    }
+                });
+            } else {
+                // Not logged in, add click handler to redirect to login
+                document.querySelector('.bookmark-btn').addEventListener('click', () => {
+                    window.location.href = `login.html?redirect=episode&donghua=${donghuaId}&ep=${episodeNumber}`;
+                });
+            }
+            
+            // Populate episode list modal
+            const episodeListBtn = document.getElementById('episode-list-btn');
+            const episodeListModal = document.getElementById('episode-list-modal');
+            const closeModalBtn = document.querySelector('.close-modal');
+            const modalEpisodeList = document.getElementById('modal-episode-list');
+            
+            // Fetch episodes for the modal
+            async function fetchEpisodeList() {
+                const { data: episodes, error } = await supabase
+                    .from('episodes')
+                    .select('id, title, episode_number, thumbnail_url, duration')
+                    .eq('donghua_id', donghuaId)
+                    .order('episode_number', { ascending: true });
+                    
+                if (error || !episodes || episodes.length === 0) {
+                    console.error('Error fetching episodes:', error);
+                    // Generate sample episodes as fallback
+                    return generateSampleEpisodes();
+                }
+                
+                return episodes;
+            }
+            
+            // Generate sample episodes for the modal if API call fails
+            function generateSampleEpisodes() {
+                const episodes = [];
+                const totalEpisodes = donghua.totalEpisodes || 24;
+                
+                for (let i = 1; i <= totalEpisodes; i++) {
+                    episodes.push({
+                        id: `${donghuaId}-${i}`,
+                        title: `Episode ${i}`,
+                        episode_number: i,
+                        duration: 1440, // 24 minutes in seconds
+                        thumbnail_url: `https://via.placeholder.com/120x68?text=${donghua.title}-E${i}`
+                    });
+                }
+                
+                return episodes;
+            }
+            
+            // Generate episodes list in modal
+            const episodes = await fetchEpisodeList();
+            let episodeListHTML = '';
+            
+            episodes.forEach(ep => {
+                const formattedDuration = ep.duration ? 
+                    `${Math.floor(ep.duration / 60)}:${(ep.duration % 60).toString().padStart(2, '0')}` : 
+                    "24:00";
+                
+                const isCurrentEpisode = ep.episode_number === Number(episodeNumber);
+                const thumbnailUrl = ep.thumbnail_url || `https://via.placeholder.com/120x68?text=${donghua.title}-E${ep.episode_number}`;
+                
+                episodeListHTML += `
+                    <div class="modal-episode-item ${isCurrentEpisode ? 'current' : ''}">
+                        <div class="modal-episode-number">EP ${ep.episode_number}</div>
+                        <div class="modal-episode-thumbnail">
+                            <img src="${thumbnailUrl}" alt="Episode ${ep.episode_number}">
+                            ${isCurrentEpisode ? '<div class="current-marker">WATCHING</div>' : ''}
+                        </div>
+                        <div class="modal-episode-details">
+                            <h4>${ep.title}</h4>
+                            <span>${formattedDuration}</span>
+                        </div>
+                        <a href="episode.html?donghua=${donghuaId}&ep=${ep.episode_number}" class="modal-episode-link"></a>
+                    </div>
+                `;
+            });
+            
+            modalEpisodeList.innerHTML = episodeListHTML;
+            
+            // Modal toggle functionality
+            episodeListBtn.addEventListener('click', () => {
+                episodeListModal.classList.add('active');
+            });
+            
+            closeModalBtn.addEventListener('click', () => {
+                episodeListModal.classList.remove('active');
+            });
+            
+            // Close modal when clicking outside
+            episodeListModal.addEventListener('click', (e) => {
+                if (e.target === episodeListModal) {
+                    episodeListModal.classList.remove('active');
+                }
+            });
+            
+            // Fetch and display recommended donghua
+            async function fetchRecommendedDonghua() {
+                const { data, error } = await supabase
+                    .from('donghua')
+                    .select('id, title, poster_url, year')
+                    .neq('id', donghuaId)
+                    .limit(4);
+                    
+                if (error || !data || data.length === 0) {
+                    console.error('Error fetching recommended donghua:', error);
+                    return generateSampleRecommendations();
+                }
+                
+                return data.map(item => ({
+                    id: item.id,
+                    title: item.title,
+                    poster: item.poster_url || `https://via.placeholder.com/300x450?text=${encodeURIComponent(item.title)}`,
+                    rating: (4 + Math.random()).toFixed(1),
+                    year: item.year || 2025
+                }));
+            }
+            
+            // Generate sample recommended donghua if API call fails
+            function generateSampleRecommendations() {
+                return [
                     {
                         id: 1,
                         title: "The King's Avatar",
@@ -410,57 +672,64 @@
                         year: 2020
                     }
                 ];
-                
-                const recommendedContainer = document.getElementById('recommended-donghua');
-                let recommendedHTML = '';
-                
-                recommendedDonghua.forEach(donghua => {
-                    if (donghua.id != donghuaId) {  // Don't show the current donghua
-                        recommendedHTML += `
-                            <div class="donghua-card" data-id="${donghua.id}">
-                                <div class="poster">
-                                    <img src="${donghua.poster}" alt="${donghua.title}">
-                                    <div class="overlay">
-                                        <div class="rating">
-                                            <i class="fas fa-star"></i> ${donghua.rating}
-                                        </div>
-                                        <div class="year">${donghua.year}</div>
-                                        <a href="donghua.html?id=${donghua.id}" class="btn-watch">Watch Now</a>
+            }
+            
+            // Generate recommended donghua HTML
+            const recommendedDonghua = await fetchRecommendedDonghua();
+            const recommendedContainer = document.getElementById('recommended-donghua');
+            let recommendedHTML = '';
+            
+            recommendedDonghua.forEach(donghua => {
+                if (donghua.id != donghuaId) {  // Don't show the current donghua
+                    recommendedHTML += `
+                        <div class="donghua-card" data-id="${donghua.id}">
+                            <div class="poster">
+                                <img src="${donghua.poster}" alt="${donghua.title}">
+                                <div class="overlay">
+                                    <div class="rating">
+                                        <i class="fas fa-star"></i> ${donghua.rating}
                                     </div>
-                                </div>
-                                <div class="donghua-info">
-                                    <h3>${donghua.title}</h3>
+                                    <div class="year">${donghua.year}</div>
+                                    <a href="donghua.html?id=${donghua.id}" class="btn-watch">Watch Now</a>
                                 </div>
                             </div>
-                        `;
-                    }
-                });
-                
-                recommendedContainer.innerHTML = recommendedHTML;
-            }
-
-            // Video player simulation
-            const playPauseBtn = document.querySelector('.play-pause');
-            const videoPlaceholder = document.getElementById('video-placeholder');
-            let isPlaying = false;
-            
-            playPauseBtn.addEventListener('click', () => {
-                if (isPlaying) {
-                    // Pause video
-                    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-                    isPlaying = false;
-                } else {
-                    // Play video
-                    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                    isPlaying = true;
+                            <div class="donghua-info">
+                                <h3>${donghua.title}</h3>
+                            </div>
+                        </div>
+                    `;
                 }
             });
             
-            // Handle like and bookmark buttons
-            const likeBtn = document.querySelector('.like-btn');
-            const bookmarkBtn = document.querySelector('.bookmark-btn');
+            recommendedContainer.innerHTML = recommendedHTML;
+
+            // Video player simulation
+            const playPauseBtn = document.querySelector('.play-pause');
+            if (!document.getElementById('video-player')) {
+                // Only add this for placeholder, not for real video
+                let isPlaying = false;
+                
+                playPauseBtn.addEventListener('click', () => {
+                    if (isPlaying) {
+                        // Pause video
+                        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                        isPlaying = false;
+                    } else {
+                        // Play video
+                        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                        isPlaying = true;
+                    }
+                });
+            }
             
+            // Handle like button
+            const likeBtn = document.querySelector('.like-btn');
             likeBtn.addEventListener('click', () => {
+                if (!isLoggedIn) {
+                    window.location.href = `login.html?redirect=episode&donghua=${donghuaId}&ep=${episodeNumber}`;
+                    return;
+                }
+                
                 const isLiked = likeBtn.querySelector('i').classList.contains('fas');
                 
                 if (isLiked) {
@@ -469,18 +738,6 @@
                 } else {
                     likeBtn.querySelector('i').classList.remove('far');
                     likeBtn.querySelector('i').classList.add('fas');
-                }
-            });
-            
-            bookmarkBtn.addEventListener('click', () => {
-                const isBookmarked = bookmarkBtn.querySelector('i').classList.contains('fas');
-                
-                if (isBookmarked) {
-                    bookmarkBtn.querySelector('i').classList.remove('fas');
-                    bookmarkBtn.querySelector('i').classList.add('far');
-                } else {
-                    bookmarkBtn.querySelector('i').classList.remove('far');
-                    bookmarkBtn.querySelector('i').classList.add('fas');
                 }
             });
             
