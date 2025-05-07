@@ -4,2397 +4,1158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DonghuaWave - Admin Dashboard</title>
+    <title>DonghuaWave - Admin Panel</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <style>
-        /* Admin dashboard specific styles */
-        :root {
-            --primary-color: #9b87f5;
-            --secondary-color: #1a1f2c;
-            --text-color: #f3f3f3;
-            --error-color: #ea384c;
-            --success-color: #4CAF50;
-            --warning-color: #FFC107;
-            --border-color: #374151;
-            --card-bg: #242933;
-            --input-bg: #2a303c;
-            --hover-color: #374151;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--secondary-color);
-            color: var(--text-color);
-            min-height: 100vh;
-        }
-
-        /* Admin dashboard layout */
-        .admin-dashboard {
-            display: flex;
-            min-height: 100vh;
-            position: relative;
-        }
-        
-        .admin-sidebar {
-            width: 250px;
-            background-color: var(--card-bg);
-            color: var(--text-color);
+        /* Admin panel specific styles */
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
             padding: 20px;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-            z-index: 100;
-            height: 100vh;
-            position: fixed;
-            overflow-y: auto;
         }
-        
-        .sidebar-collapsed .admin-sidebar {
-            transform: translateX(-250px);
-        }
-        
-        .admin-sidebar .logo {
-            font-size: 1.5rem;
-            margin-bottom: 30px;
-            display: block;
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: bold;
-        }
-        
-        .admin-sidebar .menu {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .admin-sidebar .menu li {
-            margin-bottom: 5px;
-        }
-        
-        .admin-sidebar .menu a {
-            color: var(--text-color);
-            text-decoration: none;
-            display: block;
-            padding: 10px;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-        }
-        
-        .admin-sidebar .menu a:hover,
-        .admin-sidebar .menu a.active {
-            background-color: var(--primary-color);
-            color: #fff;
-        }
-        
-        .admin-sidebar .menu a i {
-            margin-right: 10px;
-            width: 20px;
-            text-align: center;
-        }
-        
-        .admin-content {
-            flex: 1;
-            padding: 20px;
-            margin-left: 250px;
-            transition: margin-left 0.3s ease;
-            background-color: var(--secondary-color);
-            min-height: 100vh;
-        }
-        
-        .sidebar-collapsed .admin-content {
-            margin-left: 0;
-        }
-        
         .admin-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        .admin-header h1 {
-            margin: 0;
-            color: var(--primary-color);
-        }
-        
-        .admin-panel {
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            margin-bottom: 20px;
-        }
-        
-        .admin-panel h2 {
-            margin-top: 0;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            color: var(--text-color);
-        }
-        
-        /* Stats container */
-        .stats-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 20px;
             margin-bottom: 30px;
+            background-color: #2c3e50;
+            padding: 15px 20px;
+            border-radius: 5px;
+            color: white;
         }
-        
-        .stat-card {
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            border-left: 4px solid var(--primary-color);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .stat-card .stat-title {
-            font-size: 0.9rem;
-            color: #9ca3af;
-            margin-bottom: 10px;
-        }
-        
-        .stat-card .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--text-color);
-            margin-bottom: 5px;
-        }
-        
-        .stat-card .stat-change {
-            font-size: 0.8rem;
-            color: var(--success-color);
-        }
-        
-        .stat-card .stat-icon {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 2.5rem;
-            color: var(--primary-color);
-            opacity: 0.15;
-        }
-
-        /* Tabs for content management */
-        .admin-tabs {
+        .admin-actions {
             display: flex;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+            gap: 10px;
         }
-        
-        .admin-tabs button {
-            background-color: transparent;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-weight: bold;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
-            color: var(--text-color);
+        .admin-content {
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
         }
-        
-        .admin-tabs button:hover {
-            color: var(--primary-color);
-        }
-        
-        .admin-tabs button.active {
-            border-bottom: 3px solid var(--primary-color);
-            color: var(--primary-color);
-        }
-        
-        /* Forms */
-        .admin-form {
-            display: grid;
-            gap: 15px;
-            max-width: 800px;
-        }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-        }
-        
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
-        
         .form-group label {
             display: block;
             margin-bottom: 5px;
-            font-weight: bold;
-            color: var(--text-color);
+            font-weight: 600;
         }
-        
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
+        .form-control {
             width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            background-color: var(--input-bg);
-            color: var(--text-color);
-            font-size: 1rem;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
         }
-        
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
+        .form-control:focus {
+            border-color: #3498db;
             outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(155, 135, 245, 0.2);
         }
-        
-        .form-group textarea {
-            min-height: 120px;
-            resize: vertical;
+        textarea.form-control {
+            min-height: 150px;
         }
-        
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
         }
-        
         .btn-primary {
-            background-color: var(--primary-color);
+            background-color: #3498db;
             color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
         }
-        
         .btn-primary:hover {
-            background-color: #8674d5;
+            background-color: #2980b9;
         }
-        
-        .btn-secondary {
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 12px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-secondary:hover {
-            background-color: var(--hover-color);
-        }
-        
         .btn-danger {
-            background-color: var(--error-color);
+            background-color: #e74c3c;
             color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
         }
-        
         .btn-danger:hover {
-            background-color: #d62b3e;
+            background-color: #c0392b;
         }
-        
-        .toggle-sidebar {
-            background: var(--card-bg);
-            border: none;
-            color: var(--text-color);
-            font-size: 1.2rem;
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-right: 15px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        /* Tables */
-        .table-container {
-            overflow-x: auto;
-            margin-bottom: 20px;
-        }
-        
-        .admin-table {
+        .data-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-            min-width: 700px;
+            margin-bottom: 20px;
         }
-        
-        .admin-table th,
-        .admin-table td {
-            padding: 12px 15px;
+        .data-table th, .data-table td {
+            padding: 12px;
             text-align: left;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid #ddd;
         }
-        
-        .admin-table th {
-            background-color: var(--card-bg);
-            font-weight: bold;
-            color: var(--primary-color);
-            position: sticky;
-            top: 0;
-            z-index: 10;
+        .data-table th {
+            background-color: #f9f9f9;
+            font-weight: 600;
         }
-        
-        .admin-table tbody tr {
-            transition: background-color 0.3s;
+        .data-table tr:hover {
+            background-color: #f5f5f5;
         }
-        
-        .admin-table tbody tr:hover {
-            background-color: var(--hover-color);
-        }
-        
         .action-buttons {
             display: flex;
             gap: 10px;
-            flex-wrap: wrap;
         }
-        
-        .action-btn {
+        .tab-navigation {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        .tab-button {
+            padding: 10px 20px;
             border: none;
             background: none;
             cursor: pointer;
-            padding: 5px 10px;
-            border-radius: 4px;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            color: var(--text-color);
-        }
-        
-        .action-btn.edit-btn:hover {
-            background-color: rgba(76, 175, 80, 0.1);
-            color: var(--success-color);
-        }
-        
-        .action-btn.delete-btn:hover {
-            background-color: rgba(233, 69, 96, 0.1);
-            color: var(--error-color);
-        }
-        
-        .action-btn.view-btn:hover {
-            background-color: rgba(155, 135, 245, 0.1);
-            color: var(--primary-color);
-        }
-        
-        /* Search and filter section */
-        .search-filter {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .search-filter input,
-        .search-filter select {
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            background-color: var(--input-bg);
-            color: var(--text-color);
-        }
-        
-        .search-filter input {
-            flex: 1;
-            min-width: 200px;
-        }
-        
-        /* Pagination */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-            gap: 5px;
-            flex-wrap: wrap;
-        }
-        
-        .pagination button {
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            background: var(--card-bg);
-            color: var(--text-color);
-            cursor: pointer;
-            border-radius: 5px;
+            font-size: 16px;
+            color: #7f8c8d;
+            border-bottom: 2px solid transparent;
             transition: all 0.3s;
         }
-        
-        .pagination button:hover {
-            background-color: var(--hover-color);
+        .tab-button.active {
+            border-bottom: 2px solid #3498db;
+            color: #3498db;
+            font-weight: 600;
         }
-        
-        .pagination button.active {
-            background-color: var(--primary-color);
-            color: #fff;
-            border-color: var(--primary-color);
-        }
-        
-        /* Role management */
-        .role-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        
-        .role-card {
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--border-color);
-        }
-        
-        .role-card h3 {
-            margin-top: 0;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: var(--primary-color);
-        }
-        
-        .permissions-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 10px;
-        }
-        
-        .permission-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .permission-item input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-        }
-        
-        /* Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+        .tab-content {
             display: none;
         }
-        
-        .modal-container {
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            padding: 25px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        .tab-content.active {
+            display: block;
         }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .notification {
+            padding: 15px;
+            border-radius: 4px;
             margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border-color);
+            display: none;
         }
-        
-        .modal-header h3 {
-            margin: 0;
-            color: var(--primary-color);
+        .notification.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
         }
-        
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--text-color);
+        .notification.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
-        
-        /* Image upload */
-        .image-upload {
-            position: relative;
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        .loading i {
+            font-size: 24px;
+            animation: spin 1s infinite linear;
+        }
+        .thumbnail-preview {
+            max-width: 100px;
+            max-height: 100px;
+            margin-top: 10px;
+        }
+        .tags-input {
             width: 100%;
-            height: 200px;
-            border: 2px dashed var(--border-color);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            cursor: pointer;
-            overflow: hidden;
-            transition: all 0.3s;
+            display: inline-block;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
         }
-        
-        .image-upload:hover {
-            border-color: var(--primary-color);
-        }
-        
-        .image-upload input {
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
-        
-        .image-upload i {
-            font-size: 3rem;
-            color: var(--border-color);
-            margin-bottom: 15px;
-        }
-        
-        .image-preview {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .image-upload-text {
-            z-index: 1;
-            background-color: rgba(36, 41, 51, 0.7);
-            padding: 8px 15px;
-            border-radius: 5px;
-        }
-        
-        /* Tags input */
-        .tags-input-container {
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            padding: 5px;
+        .tags-container {
             display: flex;
             flex-wrap: wrap;
             gap: 5px;
-            background-color: var(--input-bg);
-            min-height: 46px;
+            margin-top: 5px;
         }
-        
         .tag {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 5px 8px;
-            border-radius: 3px;
-            display: flex;
-            align-items: center;
-            font-size: 0.9rem;
+            display: inline-block;
+            background-color: #e0e0e0;
+            padding: 5px 10px;
+            border-radius: 15px;
+            margin-right: 5px;
         }
-        
-        .tag-close {
+        .tag-remove {
             margin-left: 5px;
             cursor: pointer;
         }
-        
-        .tags-input {
-            flex: 1;
-            border: none;
-            outline: none;
-            padding: 5px;
-            min-width: 100px;
-            background: transparent;
-            color: var(--text-color);
-        }
-        
-        /* Alert messages */
-        .alert {
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .alert-success {
-            background-color: rgba(76, 175, 80, 0.1);
-            border: 1px solid var(--success-color);
-            color: var(--success-color);
-        }
-        
-        .alert-error {
-            background-color: rgba(233, 69, 96, 0.1);
-            border: 1px solid var(--error-color);
-            color: var(--error-color);
-        }
-        
-        .alert-close {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1.2rem;
-            color: inherit;
-        }
-        
-        /* Status badges */
-        .status-badge {
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            display: inline-block;
-        }
-        
-        .status-active {
-            background-color: rgba(76, 175, 80, 0.1);
-            color: var(--success-color);
-        }
-        
-        .status-pending {
-            background-color: rgba(255, 193, 7, 0.1);
-            color: var(--warning-color);
-        }
-        
-        .status-inactive {
-            background-color: rgba(233, 69, 96, 0.1);
-            color: var(--error-color);
-        }
-
-        /* Progress bar */
-        .progress-container {
-            height: 10px;
-            width: 100%;
-            background-color: var(--input-bg);
-            border-radius: 5px;
-            overflow: hidden;
-        }
-        
-        .progress-bar {
-            height: 100%;
-            background-color: var(--primary-color);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        /* Responsive styles */
-        @media (max-width: 992px) {
-            .admin-sidebar {
-                transform: translateX(-250px);
-            }
-            
-            .sidebar-collapsed .admin-sidebar {
-                transform: translateX(0);
-            }
-            
-            .admin-content {
-                margin-left: 0;
-            }
-            
-            .sidebar-collapsed .admin-content {
-                margin-left: 0;
-                position: relative;
-            }
-            
-            .sidebar-backdrop {
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-color: rgba(0, 0, 0, 0.5);
-                z-index: 99;
-            }
-            
-            .sidebar-collapsed .sidebar-backdrop {
-                display: block;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .stats-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .admin-tabs button {
-                padding: 8px 12px;
-                font-size: 0.9rem;
-            }
-            
-            .admin-header {
-                flex-wrap: wrap;
-            }
-
-            .role-cards {
-                grid-template-columns: 1fr;
-            }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <div class="admin-dashboard" id="adminDashboard">
-        <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
-        <div class="admin-sidebar">
-            <a href="index.html" class="logo">DonghuaWave</a>
-            <ul class="menu">
-                <li><a href="#" class="active" data-tab="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                <li><a href="#" data-tab="donghua"><i class="fas fa-film"></i> Donghua</a></li>
-                <li><a href="#" data-tab="episodes"><i class="fas fa-play-circle"></i> Episodes</a></li>
-                <li><a href="#" data-tab="users"><i class="fas fa-users"></i> Users</a></li>
-                <li><a href="#" data-tab="vip"><i class="fas fa-crown"></i> VIP Users</a></li>
-                <li><a href="#" data-tab="roles"><i class="fas fa-user-shield"></i> Role Management</a></li>
-                <li><a href="#" data-tab="settings"><i class="fas fa-cog"></i> Settings</a></li>
-                <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-            </ul>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <h1>DonghuaWave</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="admin.html" class="active">Admin Panel</a></li>
+                </ul>
+            </nav>
+            <div class="user-actions">
+                <a href="login-admin.html" class="login-btn" id="adminLogoutButton">Logout</a>
+            </div>
         </div>
+    </header>
+
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>Admin Dashboard</h1>
+            <div class="admin-actions">
+                <button class="btn btn-primary" id="newDonghuaButton">Add New Donghua</button>
+            </div>
+        </div>
+
+        <div class="notification" id="notification"></div>
         
         <div class="admin-content">
-            <div class="admin-header">
-                <div class="header-left">
-                    <button id="toggleSidebar" class="toggle-sidebar">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <h1>Admin Dashboard</h1>
-                </div>
-                <div class="admin-profile">
-                    <span id="admin-name">Admin</span>
-                    <div class="user-avatar" id="admin-avatar">A</div>
-                </div>
+            <div class="tab-navigation">
+                <button class="tab-button active" data-tab="donghua">Manage Donghua</button>
+                <button class="tab-button" data-tab="episodes">Manage Episodes</button>
+                <button class="tab-button" data-tab="users">Manage Users</button>
             </div>
             
-            <!-- Dashboard Tab -->
-            <div id="dashboard" class="tab-content active">
-                <div class="stats-container">
-                    <div class="stat-card">
-                        <div class="stat-title">Total Donghua</div>
-                        <div class="stat-value" id="totalDonghua">0</div>
-                        <div class="stat-change">+5% from last month</div>
-                        <i class="fas fa-film stat-icon"></i>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-title">Total Episodes</div>
-                        <div class="stat-value" id="totalEpisodes">0</div>
-                        <div class="stat-change">+12% from last month</div>
-                        <i class="fas fa-play-circle stat-icon"></i>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-title">Registered Users</div>
-                        <div class="stat-value" id="totalUsers">0</div>
-                        <div class="stat-change">+8% from last month</div>
-                        <i class="fas fa-users stat-icon"></i>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-title">VIP Users</div>
-                        <div class="stat-value" id="totalVIP">0</div>
-                        <div class="stat-change">+3% from last month</div>
-                        <i class="fas fa-crown stat-icon"></i>
-                    </div>
-                </div>
-
-                <div class="admin-panel">
-                    <h2>Recent Activity</h2>
-                    <div class="table-container">
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>User</th>
-                                    <th>Action</th>
-                                    <th>Details</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recentActivityTable">
-                                <!-- Recent activity will be populated here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <div class="loading" id="loading">
+                <i class="fas fa-spinner"></i> Loading...
             </div>
             
-            <!-- Donghua Management Tab -->
-            <div id="donghua" class="tab-content">
-                <div class="admin-panel">
-                    <div class="alert alert-success" id="donghuaSuccessAlert" style="display:none">
-                        <span id="donghuaSuccessMessage"></span>
-                        <button class="alert-close">&times;</button>
-                    </div>
-                    <div class="alert alert-error" id="donghuaErrorAlert" style="display:none">
-                        <span id="donghuaErrorMessage"></span>
-                        <button class="alert-close">&times;</button>
-                    </div>
-                    
-                    <h2>Manage Donghua</h2>
-                    <div class="search-filter">
-                        <input type="text" id="donghuaSearch" placeholder="Search by title...">
-                        <select id="donghuaStatusFilter">
-                            <option value="">All Statuses</option>
-                            <option value="ongoing">Ongoing</option>
-                            <option value="completed">Completed</option>
-                            <option value="upcoming">Upcoming</option>
-                        </select>
-                        <button class="btn-primary" id="addDonghuaBtn">
-                            <i class="fas fa-plus"></i> Add New Donghua
-                        </button>
-                    </div>
-                    
-                    <div class="table-container">
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Title</th>
-                                    <th>Year</th>
-                                    <th>Status</th>
-                                    <th>Genres</th>
-                                    <th>Episodes</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="donghuaTable">
-                                <!-- Donghua data will be loaded here -->
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <div class="pagination" id="donghuaPagination">
-                        <!-- Pagination will be generated here -->
-                    </div>
-                </div>
-                
-                <!-- Donghua Form Modal -->
-                <div class="modal-overlay" id="donghuaFormModal">
-                    <div class="modal-container">
-                        <div class="modal-header">
-                            <h3 id="donghuaFormTitle">Add New Donghua</h3>
-                            <button class="modal-close">&times;</button>
-                        </div>
-                        <form id="donghuaForm" class="admin-form">
-                            <input type="hidden" id="donghuaId">
-                            <div class="form-group">
-                                <label for="donghuaTitle">Title</label>
-                                <input type="text" id="donghuaTitle" name="title" required>
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="donghuaYear">Year</label>
-                                    <input type="number" id="donghuaYear" name="year" min="1900" max="2100">
-                                </div>
-                                <div class="form-group">
-                                    <label for="donghuaStatus">Status</label>
-                                    <select id="donghuaStatus" name="status">
-                                        <option value="ongoing">Ongoing</option>
-                                        <option value="completed">Completed</option>
-                                        <option value="upcoming">Upcoming</option>
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="donghuaGenres">Genres</label>
-                                <div class="tags-input-container" id="genresContainer">
-                                    <input type="text" class="tags-input" id="genresInput" placeholder="Add genre and press Enter...">
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="donghuaDescription">Description</label>
-                                <textarea id="donghuaDescription" name="description" rows="5"></textarea>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Poster Image</label>
-                                <div class="image-upload" id="posterUpload">
-                                    <input type="file" id="posterFile" accept="image/*">
-                                    <i class="fas fa-cloud-upload-alt"></i>
-                                    <div class="image-upload-text">Click or drag to upload poster</div>
-                                    <img id="posterPreview" class="image-preview" style="display: none;">
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="posterUrl">Poster URL (optional)</label>
-                                <input type="text" id="posterUrl" name="posterUrl" placeholder="Or enter image URL directly">
-                            </div>
-                            
-                            <div id="uploadProgress" class="progress-container" style="display: none;">
-                                <div class="progress-bar" id="uploadProgressBar"></div>
-                            </div>
-                            
-                            <div class="btn-group">
-                                <button type="submit" class="btn-primary" id="saveDonghuaBtn">Save Donghua</button>
-                                <button type="button" class="btn-secondary close-modal">Cancel</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+            <!-- Donghua Tab -->
+            <div class="tab-content active" id="donghua-tab">
+                <table class="data-table" id="donghuaTable">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Year</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Donghua data will be loaded here -->
+                    </tbody>
+                </table>
             </div>
             
-            <!-- Episodes Management Tab -->
-            <div id="episodes" class="tab-content">
-                <div class="admin-panel">
-                    <div class="alert alert-success" id="episodeSuccessAlert" style="display:none">
-                        <span id="episodeSuccessMessage"></span>
-                        <button class="alert-close">&times;</button>
-                    </div>
-                    <div class="alert alert-error" id="episodeErrorAlert" style="display:none">
-                        <span id="episodeErrorMessage"></span>
-                        <button class="alert-close">&times;</button>
-                    </div>
-                    
-                    <h2>Manage Episodes</h2>
-                    <div class="search-filter">
-                        <input type="text" id="episodeSearch" placeholder="Search by title...">
-                        <select id="donghuaFilter">
-                            <option value="">All Donghua</option>
-                            <!-- Donghua options will be loaded here -->
-                        </select>
-                        <button class="btn-primary" id="addEpisodeBtn">
-                            <i class="fas fa-plus"></i> Add New Episode
-                        </button>
-                    </div>
-                    
-                    <div class="table-container">
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Donghua</th>
-                                    <th>Episode #</th>
-                                    <th>Title</th>
-                                    <th>Duration</th>
-                                    <th>Premium</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="episodesTable">
-                                <!-- Episodes data will be loaded here -->
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <div class="pagination" id="episodesPagination">
-                        <!-- Pagination will be generated here -->
-                    </div>
-                </div>
-                
-                <!-- Episode Form Modal -->
-                <div class="modal-overlay" id="episodeFormModal">
-                    <div class="modal-container">
-                        <div class="modal-header">
-                            <h3 id="episodeFormTitle">Add New Episode</h3>
-                            <button class="modal-close">&times;</button>
-                        </div>
-                        <form id="episodeForm" class="admin-form">
-                            <input type="hidden" id="episodeId">
-                            
-                            <div class="form-group">
-                                <label for="episodeDonghua">Donghua</label>
-                                <select id="episodeDonghua" name="donghua_id" required>
-                                    <option value="">Select Donghua</option>
-                                    <!-- Donghua options will be loaded here -->
-                                </select>
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="episodeNumber">Episode Number</label>
-                                    <input type="number" id="episodeNumber" name="episode_number" min="1" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="episodeDuration">Duration (minutes)</label>
-                                    <input type="number" id="episodeDuration" name="duration" min="1">
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="episodeTitle">Title</label>
-                                <input type="text" id="episodeTitle" name="title" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Thumbnail Image</label>
-                                <div class="image-upload" id="thumbnailUpload">
-                                    <input type="file" id="thumbnailFile" accept="image/*">
-                                    <i class="fas fa-cloud-upload-alt"></i>
-                                    <div class="image-upload-text">Click or drag to upload thumbnail</div>
-                                    <img id="thumbnailPreview" class="image-preview" style="display: none;">
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="thumbnailUrl">Thumbnail URL (optional)</label>
-                                <input type="text" id="thumbnailUrl" name="thumbnailUrl" placeholder="Or enter image URL directly">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="videoUrl">Video URL</label>
-                                <input type="text" id="videoUrl" name="video_url" required placeholder="Enter hosted video URL or embed code">
-                            </div>
-                            
-                            <div class="form-group">
-                                <div class="permission-item">
-                                    <input type="checkbox" id="isPremium" name="is_premium">
-                                    <label for="isPremium">Premium Content (VIP only)</label>
-                                </div>
-                            </div>
-                            
-                            <div id="episodeUploadProgress" class="progress-container" style="display: none;">
-                                <div class="progress-bar" id="episodeUploadProgressBar"></div>
-                            </div>
-                            
-                            <div class="btn-group">
-                                <button type="submit" class="btn-primary" id="saveEpisodeBtn">Save Episode</button>
-                                <button type="button" class="btn-secondary close-modal">Cancel</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- User Management Tab -->
-            <div id="users" class="tab-content">
-                <div class="admin-panel">
-                    <div class="alert alert-success" id="userSuccessAlert" style="display:none">
-                        <span id="userSuccessMessage"></span>
-                        <button class="alert-close">&times;</button>
-                    </div>
-                    <div class="alert alert-error" id="userErrorAlert" style="display:none">
-                        <span id="userErrorMessage"></span>
-                        <button class="alert-close">&times;</button>
-                    </div>
-                    
-                    <h2>Manage Users</h2>
-                    <div class="search-filter">
-                        <input type="text" id="userSearch" placeholder="Search by name or email...">
-                        <select id="userStatusFilter">
-                            <option value="">All Statuses</option>
-                            <option value="active">Active</option>
-                            <option value="suspended">Suspended</option>
+            <!-- Episodes Tab -->
+            <div class="tab-content" id="episodes-tab">
+                <div id="episodeSelectionContainer">
+                    <div class="form-group">
+                        <label for="donghuaSelect">Select Donghua:</label>
+                        <select class="form-control" id="donghuaSelect">
+                            <option value="">-- Select Donghua --</option>
                         </select>
                     </div>
-                    
-                    <div class="table-container">
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Status</th>
-                                    <th>Role</th>
-                                    <th>Joined</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="usersTable">
-                                <!-- Users data will be loaded here -->
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <div class="pagination" id="usersPagination">
-                        <!-- Pagination will be generated here -->
-                    </div>
+                    <button class="btn btn-primary" id="addEpisodeButton" style="display:none;">Add New Episode</button>
                 </div>
                 
-                <!-- User Edit Modal -->
-                <div class="modal-overlay" id="userFormModal">
-                    <div class="modal-container">
-                        <div class="modal-header">
-                            <h3 id="userFormTitle">Edit User</h3>
-                            <button class="modal-close">&times;</button>
-                        </div>
-                        <form id="userForm" class="admin-form">
-                            <input type="hidden" id="userId">
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="userName">Name</label>
-                                    <input type="text" id="userName" name="name" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label for="userEmail">Email</label>
-                                    <input type="email" id="userEmail" name="email" readonly>
-                                </div>
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="userStatus">Status</label>
-                                    <select id="userStatus" name="status">
-                                        <option value="active">Active</option>
-                                        <option value="suspended">Suspended</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="userRole">Role</label>
-                                    <select id="userRole" name="role">
-                                        <option value="user">User</option>
-                                        <option value="vip">VIP</option>
-                                        <option value="moderator">Moderator</option>
-                                        <option value="admin">Admin</option>
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <div class="btn-group">
-                                <button type="submit" class="btn-primary" id="saveUserBtn">Update User</button>
-                                <button type="button" class="btn-secondary close-modal">Cancel</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                <table class="data-table" id="episodesTable" style="display:none;">
+                    <thead>
+                        <tr>
+                            <th>Episode #</th>
+                            <th>Title</th>
+                            <th>Duration</th>
+                            <th>Premium</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Episodes data will be loaded here -->
+                    </tbody>
+                </table>
             </div>
             
-            <!-- VIP Users Tab -->
-            <div id="vip" class="tab-content">
-                <div class="admin-panel">
-                    <div class="alert alert-success" id="vipSuccessAlert" style="display:none">
-                        <span id="vipSuccessMessage"></span>
-                        <button class="alert-close">&times;</button>
-                    </div>
-                    <div class="alert alert-error" id="vipErrorAlert" style="display:none">
-                        <span id="vipErrorMessage"></span>
-                        <button class="alert-close">&times;</button>
-                    </div>
-                    
-                    <h2>VIP Users</h2>
-                    <div class="search-filter">
-                        <input type="text" id="vipSearch" placeholder="Search by name or email...">
-                        <select id="vipStatusFilter">
-                            <option value="">All</option>
-                            <option value="active">Active</option>
-                            <option value="expired">Expired</option>
-                        </select>
-                        <button class="btn-primary" id="addVipBtn">
-                            <i class="fas fa-plus"></i> Add VIP User
-                        </button>
-                    </div>
-                    
-                    <div class="table-container">
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Start Date</th>
-                                    <th>End Date</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="vipTable">
-                                <!-- VIP users data will be loaded here -->
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <div class="pagination" id="vipPagination">
-                        <!-- Pagination will be generated here -->
-                    </div>
-                </div>
-                
-                <!-- VIP User Form Modal -->
-                <div class="modal-overlay" id="vipFormModal">
-                    <div class="modal-container">
-                        <div class="modal-header">
-                            <h3 id="vipFormTitle">Add VIP User</h3>
-                            <button class="modal-close">&times;</button>
-                        </div>
-                        <form id="vipForm" class="admin-form">
-                            <input type="hidden" id="vipId">
-                            
-                            <div class="form-group">
-                                <label for="vipUser">User</label>
-                                <select id="vipUser" name="user_id">
-                                    <option value="">Select User</option>
-                                    <!-- User options will be loaded here -->
-                                </select>
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="vipStartDate">Subscription Start</label>
-                                    <input type="date" id="vipStartDate" name="subscription_start" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="vipEndDate">Subscription End</label>
-                                    <input type="date" id="vipEndDate" name="subscription_end" required>
-                                </div>
-                            </div>
-                            
-                            <div class="btn-group">
-                                <button type="submit" class="btn-primary" id="saveVipBtn">Save</button>
-                                <button type="button" class="btn-secondary close-modal">Cancel</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Role Management Tab -->
-            <div id="roles" class="tab-content">
-                <div class="admin-panel">
-                    <div class="alert alert-success" id="roleSuccessAlert" style="display:none">
-                        <span id="roleSuccessMessage"></span>
-                        <button class="alert-close">&times;</button>
-                    </div>
-                    <div class="alert alert-error" id="roleErrorAlert" style="display:none">
-                        <span id="roleErrorMessage"></span>
-                        <button class="alert-close">&times;</button>
-                    </div>
-                    
-                    <h2>Role Management</h2>
-                    <button class="btn-primary" id="addRoleBtn" style="margin-bottom: 20px;">
-                        <i class="fas fa-plus"></i> Add New Role
-                    </button>
-                    
-                    <div class="role-cards" id="roleCards">
-                        <!-- Role cards will be loaded here -->
-                        <div class="role-card">
-                            <h3>
-                                Administrator
-                                <button class="action-btn edit-btn" data-role="admin">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </h3>
-                            <p>Full system access and all permissions</p>
-                            <div class="permissions-list">
-                                <div class="permission-item">
-                                    <input type="checkbox" id="admin-manage_donghua" checked disabled>
-                                    <label for="admin-manage_donghua">Manage Donghua</label>
-                                </div>
-                                <div class="permission-item">
-                                    <input type="checkbox" id="admin-manage_episodes" checked disabled>
-                                    <label for="admin-manage_episodes">Manage Episodes</label>
-                                </div>
-                                <div class="permission-item">
-                                    <input type="checkbox" id="admin-manage_users" checked disabled>
-                                    <label for="admin-manage_users">Manage Users</label>
-                                </div>
-                                <div class="permission-item">
-                                    <input type="checkbox" id="admin-manage_roles" checked disabled>
-                                    <label for="admin-manage_roles">Manage Roles</label>
-                                </div>
-                                <div class="permission-item">
-                                    <input type="checkbox" id="admin-manage_settings" checked disabled>
-                                    <label for="admin-manage_settings">Manage Settings</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="role-card">
-                            <h3>
-                                Moderator
-                                <button class="action-btn edit-btn" data-role="moderator">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </h3>
-                            <p>Can manage content but not users or settings</p>
-                            <div class="permissions-list">
-                                <div class="permission-item">
-                                    <input type="checkbox" id="mod-manage_donghua" checked disabled>
-                                    <label for="mod-manage_donghua">Manage Donghua</label>
-                                </div>
-                                <div class="permission-item">
-                                    <input type="checkbox" id="mod-manage_episodes" checked disabled>
-                                    <label for="mod-manage_episodes">Manage Episodes</label>
-                                </div>
-                                <div class="permission-item">
-                                    <input type="checkbox" id="mod-manage_users" disabled>
-                                    <label for="mod-manage_users">Manage Users</label>
-                                </div>
-                                <div class="permission-item">
-                                    <input type="checkbox" id="mod-manage_roles" disabled>
-                                    <label for="mod-manage_roles">Manage Roles</label>
-                                </div>
-                                <div class="permission-item">
-                                    <input type="checkbox" id="mod-manage_settings" disabled>
-                                    <label for="mod-manage_settings">Manage Settings</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="role-card">
-                            <h3>
-                                VIP User
-                                <button class="action-btn edit-btn" data-role="vip">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </h3>
-                            <p>Premium user with access to all content</p>
-                            <div class="permissions-list">
-                                <div class="permission-item">
-                                    <input type="checkbox" id="vip-view_premium" checked disabled>
-                                    <label for="vip-view_premium">Access Premium Content</label>
-                                </div>
-                                <div class="permission-item">
-                                    <input type="checkbox" id="vip-ad_free" checked disabled>
-                                    <label for="vip-ad_free">Ad-Free Experience</label>
-                                </div>
-                                <div class="permission-item">
-                                    <input type="checkbox" id="vip-early_access" checked disabled>
-                                    <label for="vip-early_access">Early Access</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="role-card">
-                            <h3>
-                                Free User
-                                <button class="action-btn edit-btn" data-role="user">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </h3>
-                            <p>Standard user with basic access</p>
-                            <div class="permissions-list">
-                                <div class="permission-item">
-                                    <input type="checkbox" id="user-view_free" checked disabled>
-                                    <label for="user-view_free">Access Free Content</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Role Edit Modal -->
-                <div class="modal-overlay" id="roleFormModal">
-                    <div class="modal-container">
-                        <div class="modal-header">
-                            <h3 id="roleFormTitle">Edit Role</h3>
-                            <button class="modal-close">&times;</button>
-                        </div>
-                        <form id="roleForm" class="admin-form">
-                            <input type="hidden" id="roleId">
-                            
-                            <div class="form-group">
-                                <label for="roleName">Role Name</label>
-                                <input type="text" id="roleName" name="name" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="roleDescription">Description</label>
-                                <textarea id="roleDescription" name="description" rows="3"></textarea>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Permissions</label>
-                                <div class="permissions-list" id="rolePermissionsList">
-                                    <!-- Permissions checkboxes will be rendered here -->
-                                </div>
-                            </div>
-                            
-                            <div class="btn-group">
-                                <button type="submit" class="btn-primary" id="saveRoleBtn">Save Role</button>
-                                <button type="button" class="btn-secondary close-modal">Cancel</button>
-                                <button type="button" class="btn-danger" id="deleteRoleBtn" style="display:none;">Delete Role</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Settings Tab -->
-            <div id="settings" class="tab-content">
-                <div class="admin-panel">
-                    <div class="alert alert-success" id="settingsSuccessAlert" style="display:none">
-                        <span id="settingsSuccessMessage"></span>
-                        <button class="alert-close">&times;</button>
-                    </div>
-                    
-                    <h2>System Settings</h2>
-                    <form id="settingsForm" class="admin-form">
-                        <div class="form-group">
-                            <label for="siteName">Site Name</label>
-                            <input type="text" id="siteName" name="siteName" value="DonghuaWave">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="siteDescription">Site Description</label>
-                            <textarea id="siteDescription" name="siteDescription" rows="3">Your premier destination for Chinese animation</textarea>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="contactEmail">Contact Email</label>
-                                <input type="email" id="contactEmail" name="contactEmail" value="contact@donghuawave.com">
-                            </div>
-                            <div class="form-group">
-                                <label for="supportEmail">Support Email</label>
-                                <input type="email" id="supportEmail" name="supportEmail" value="support@donghuawave.com">
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="maintenanceMode">Maintenance Mode</label>
-                            <select id="maintenanceMode" name="maintenanceMode">
-                                <option value="off" selected>Off - Site is live</option>
-                                <option value="on">On - Site in maintenance mode</option>
-                            </select>
-                        </div>
-                        
-                        <h3 style="margin-top: 30px;">Registration Settings</h3>
-                        <div class="form-group">
-                            <div class="permission-item">
-                                <input type="checkbox" id="allowRegistration" name="allowRegistration" checked>
-                                <label for="allowRegistration">Allow New User Registration</label>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <div class="permission-item">
-                                <input type="checkbox" id="requireEmailVerification" name="requireEmailVerification" checked>
-                                <label for="requireEmailVerification">Require Email Verification</label>
-                            </div>
-                        </div>
-                        
-                        <div class="btn-group">
-                            <button type="submit" class="btn-primary">Save Settings</button>
-                            <button type="reset" class="btn-secondary">Reset</button>
-                        </div>
-                    </form>
-                </div>
+            <!-- Users Tab -->
+            <div class="tab-content" id="users-tab">
+                <table class="data-table" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Joined Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Users data will be loaded here -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+    
+    <!-- Donghua Form Modal -->
+    <div id="donghuaFormModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:1000;">
+        <div style="background-color:white; margin:50px auto; padding:20px; border-radius:5px; max-width:700px; max-height:80vh; overflow-y:auto;">
+            <h2 id="modalTitle">Add New Donghua</h2>
+            <form id="donghuaForm">
+                <input type="hidden" id="donghuaId">
+                <div class="form-group">
+                    <label for="title">Title*</label>
+                    <input type="text" class="form-control" id="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="year">Year</label>
+                    <input type="number" class="form-control" id="year">
+                </div>
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select class="form-control" id="status">
+                        <option value="ongoing">Ongoing</option>
+                        <option value="completed">Completed</option>
+                        <option value="upcoming">Upcoming</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea class="form-control" id="description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="genre">Genre (Type and press Enter)</label>
+                    <input type="text" class="tags-input" id="genreInput" placeholder="Action, Fantasy, etc.">
+                    <div class="tags-container" id="genreTags"></div>
+                    <input type="hidden" id="genreValues">
+                </div>
+                <div class="form-group">
+                    <label for="posterUrl">Poster URL</label>
+                    <input type="text" class="form-control" id="posterUrl">
+                    <img id="posterPreview" class="thumbnail-preview" style="display:none;">
+                </div>
+                <div class="form-group" style="display:flex; justify-content:space-between;">
+                    <button type="button" class="btn btn-danger" id="cancelDonghuaButton">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Episode Form Modal -->
+    <div id="episodeFormModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:1000;">
+        <div style="background-color:white; margin:50px auto; padding:20px; border-radius:5px; max-width:700px; max-height:80vh; overflow-y:auto;">
+            <h2 id="episodeModalTitle">Add New Episode</h2>
+            <form id="episodeForm">
+                <input type="hidden" id="episodeId">
+                <input type="hidden" id="episodeDonghuaId">
+                <div class="form-group">
+                    <label for="episodeNumber">Episode Number*</label>
+                    <input type="number" class="form-control" id="episodeNumber" required>
+                </div>
+                <div class="form-group">
+                    <label for="episodeTitle">Title*</label>
+                    <input type="text" class="form-control" id="episodeTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="duration">Duration (minutes)</label>
+                    <input type="number" class="form-control" id="duration">
+                </div>
+                <div class="form-group">
+                    <label for="isPremium">Premium Content</label>
+                    <select class="form-control" id="isPremium">
+                        <option value="false">No</option>
+                        <option value="true">Yes</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="thumbnailUrl">Thumbnail URL</label>
+                    <input type="text" class="form-control" id="thumbnailUrl">
+                    <img id="thumbnailPreview" class="thumbnail-preview" style="display:none;">
+                </div>
+                <div class="form-group">
+                    <label for="videoUrl">Video URL*</label>
+                    <input type="text" class="form-control" id="videoUrl" required>
+                </div>
+                <div class="form-group" style="display:flex; justify-content:space-between;">
+                    <button type="button" class="btn btn-danger" id="cancelEpisodeButton">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Episode</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h2>DonghuaWave</h2>
+                    <p>Admin Panel</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 DonghuaWave. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
+        document.addEventListener('DOMContentLoaded', () => {
             // Initialize Supabase client
             const SUPABASE_URL = "https://xsofijbnzfiiteutpeza.supabase.co";
             const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhzb2ZpamJuemZpaXRldXRwZXphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY0MTYyOTIsImV4cCI6MjA2MTk5MjI5Mn0.JEsqm4EHoCXYQHrlCIF4eL8e7oF2V5IFhxO1eSIzcbw";
-            const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-            // Check if admin is logged in
-            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            const supabase = supabaseCreateClient(SUPABASE_URL, SUPABASE_KEY);
             
-            if (sessionError || !session) {
-                // Admin is not logged in, redirect to admin login page
-                window.location.href = 'login-admin.html';
-                return;
-            }
-            
-            // Check if user is an admin
-            const { data: adminData, error: adminError } = await supabase
-                .from('admins')
-                .select('id, name, email')
-                .eq('user_id', session.user.id)
-                .single();
-                
-            if (adminError || !adminData) {
-                // User is not an admin, redirect to login page
-                alert('Access denied. You do not have admin privileges.');
-                window.location.href = 'login-admin.html';
-                return;
-            }
-            
-            // Admin is logged in, update UI
-            const adminName = document.getElementById('admin-name');
-            const adminAvatar = document.getElementById('admin-avatar');
-            
-            adminName.textContent = adminData.name || session.user.email.split('@')[0];
-            adminAvatar.textContent = (adminData.name || session.user.email).charAt(0).toUpperCase();
-            
-            // Sidebar toggle functionality
-            const toggleSidebarBtn = document.getElementById('toggleSidebar');
-            const adminDashboard = document.getElementById('adminDashboard');
-            const sidebarBackdrop = document.getElementById('sidebarBackdrop');
-            
-            toggleSidebarBtn.addEventListener('click', () => {
-                adminDashboard.classList.toggle('sidebar-collapsed');
-            });
-            
-            sidebarBackdrop.addEventListener('click', () => {
-                adminDashboard.classList.remove('sidebar-collapsed');
-            });
-            
-            // Tab navigation
-            const menuLinks = document.querySelectorAll('.menu a');
+            // Elements
+            const loading = document.getElementById('loading');
+            const notification = document.getElementById('notification');
+            const tabButtons = document.querySelectorAll('.tab-button');
             const tabContents = document.querySelectorAll('.tab-content');
             
-            menuLinks.forEach(link => {
-                link.addEventListener('click', e => {
-                    if (link.id === 'logout-btn') return; // Skip for logout button
+            // Donghua elements
+            const donghuaTable = document.getElementById('donghuaTable').querySelector('tbody');
+            const donghuaFormModal = document.getElementById('donghuaFormModal');
+            const donghuaForm = document.getElementById('donghuaForm');
+            const modalTitle = document.getElementById('modalTitle');
+            
+            // Episode elements
+            const donghuaSelect = document.getElementById('donghuaSelect');
+            const episodesTable = document.getElementById('episodesTable');
+            const episodeFormModal = document.getElementById('episodeFormModal');
+            const episodeForm = document.getElementById('episodeForm');
+            const addEpisodeButton = document.getElementById('addEpisodeButton');
+            
+            // Utility functions
+            function showLoading() {
+                loading.style.display = 'block';
+            }
+            
+            function hideLoading() {
+                loading.style.display = 'none';
+            }
+            
+            function showNotification(message, type) {
+                notification.textContent = message;
+                notification.className = 'notification ' + type;
+                notification.style.display = 'block';
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 5000);
+            }
+            
+            // Tab navigation
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tab = button.getAttribute('data-tab');
                     
-                    e.preventDefault();
+                    // Update active tab button
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
                     
-                    // Remove active class from all links and tabs
-                    menuLinks.forEach(item => item.classList.remove('active'));
-                    tabContents.forEach(tab => tab.classList.remove('active'));
+                    // Show active tab content
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    document.getElementById(tab + '-tab').classList.add('active');
                     
-                    // Add active class to clicked link
-                    link.classList.add('active');
-                    
-                    // Show corresponding tab content
-                    const tabId = link.getAttribute('data-tab');
-                    document.getElementById(tabId).classList.add('active');
-                    
-                    // On mobile, close sidebar after navigation
-                    if (window.innerWidth < 992) {
-                        adminDashboard.classList.remove('sidebar-collapsed');
+                    // Load data for the active tab
+                    if (tab === 'donghua') {
+                        loadDonghua();
+                    } else if (tab === 'episodes') {
+                        loadDonghuaForSelect();
+                    } else if (tab === 'users') {
+                        loadUsers();
                     }
                 });
             });
             
-            // Close alert messages
-            document.querySelectorAll('.alert-close').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    btn.closest('.alert').style.display = 'none';
-                });
-            });
-            
-            // Handle modal close buttons
-            document.querySelectorAll('.modal-close, .close-modal').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.modal-overlay').forEach(modal => {
-                        modal.style.display = 'none';
-                    });
-                });
-            });
-            
-            // Handle logout
-            const logoutBtn = document.getElementById('logout-btn');
-            logoutBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                await supabase.auth.signOut();
-                window.location.href = 'login-admin.html';
-            });
-
-            // Load dashboard statistics
-            const loadDashboardStats = async () => {
-                try {
-                    // Get total donghua count
-                    const { count: donghuaCount, error: donghuaError } = await supabase
-                        .from('donghua')
-                        .select('id', { count: 'exact', head: true });
-                        
-                    if (!donghuaError) {
-                        document.getElementById('totalDonghua').textContent = donghuaCount;
-                    }
-                    
-                    // Get total episodes count
-                    const { count: episodesCount, error: episodesError } = await supabase
-                        .from('episodes')
-                        .select('id', { count: 'exact', head: true });
-                        
-                    if (!episodesError) {
-                        document.getElementById('totalEpisodes').textContent = episodesCount;
-                    }
-                    
-                    // Get total users count
-                    const { count: usersCount, error: usersError } = await supabase
-                        .from('users')
-                        .select('id', { count: 'exact', head: true });
-                        
-                    if (!usersError) {
-                        document.getElementById('totalUsers').textContent = usersCount;
-                    }
-                    
-                    // Get VIP users count
-                    const { count: vipCount, error: vipError } = await supabase
-                        .from('vip_users')
-                        .select('id', { count: 'exact', head: true });
-                        
-                    if (!vipError) {
-                        document.getElementById('totalVIP').textContent = vipCount;
-                    }
-                } catch (error) {
-                    console.error('Error loading dashboard stats:', error);
+            // Check authentication status
+            async function checkAdminAuth() {
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                if (!session) {
+                    window.location.href = 'login-admin.html';
+                    return false;
                 }
-            };
-
-            // Load donghua list
-            const loadDonghuaList = async () => {
+                
+                // Check if user is admin
+                const { data, error } = await supabase
+                    .from('admins')
+                    .select('*')
+                    .eq('user_id', session.user.id)
+                    .single();
+                
+                if (error || !data) {
+                    window.location.href = 'login-admin.html';
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            // Donghua Management
+            async function loadDonghua() {
+                showLoading();
                 try {
                     const { data, error } = await supabase
                         .from('donghua')
                         .select('*')
-                        .order('created_at', { ascending: false });
-                        
+                        .order('title', { ascending: true });
+                    
                     if (error) throw error;
                     
-                    const donghuaTable = document.getElementById('donghuaTable');
+                    donghuaTable.innerHTML = '';
                     
-                    if (data && data.length > 0) {
-                        let html = '';
-                        
-                        data.forEach(donghua => {
-                            const genres = donghua.genre && Array.isArray(donghua.genre) 
-                                ? donghua.genre.join(', ') 
-                                : '';
-                                
-                            html += `
-                                <tr>
-                                    <td>
-                                        <div style="display: flex; align-items: center; gap: 10px;">
-                                            <img src="${donghua.poster_url || 'https://via.placeholder.com/50x75?text=No+Poster'}" 
-                                                 alt="${donghua.title}" style="width: 40px; height: 60px; object-fit: cover; border-radius: 4px;">
-                                            <span>${donghua.title}</span>
-                                        </div>
-                                    </td>
-                                    <td>${donghua.year || 'N/A'}</td>
-                                    <td>
-                                        <span class="status-badge status-${donghua.status === 'completed' ? 'active' : donghua.status === 'upcoming' ? 'pending' : ''}">
-                                            ${donghua.status || 'ongoing'}
-                                        </span>
-                                    </td>
-                                    <td>${genres}</td>
-                                    <td>0</td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <button class="action-btn view-btn" data-id="${donghua.id}">
-                                                <i class="fas fa-eye"></i> View
-                                            </button>
-                                            <button class="action-btn edit-btn edit-donghua-btn" data-id="${donghua.id}">
-                                                <i class="fas fa-edit"></i> Edit
-                                            </button>
-                                            <button class="action-btn delete-btn delete-donghua-btn" data-id="${donghua.id}">
-                                                <i class="fas fa-trash"></i> Delete
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            `;
-                        });
-                        
-                        donghuaTable.innerHTML = html;
-                        
-                        // Set up edit buttons
-                        document.querySelectorAll('.edit-donghua-btn').forEach(btn => {
-                            btn.addEventListener('click', () => {
-                                const donghuaId = btn.getAttribute('data-id');
-                                editDonghua(donghuaId);
-                            });
-                        });
-                        
-                        // Set up delete buttons
-                        document.querySelectorAll('.delete-donghua-btn').forEach(btn => {
-                            btn.addEventListener('click', () => {
-                                const donghuaId = btn.getAttribute('data-id');
-                                if (confirm('Are you sure you want to delete this donghua? This will also delete all associated episodes.')) {
-                                    deleteDonghua(donghuaId);
-                                }
-                            });
-                        });
-                    } else {
+                    if (data.length === 0) {
                         donghuaTable.innerHTML = `
                             <tr>
-                                <td colspan="6" style="text-align: center;">No donghua found. Add your first one!</td>
+                                <td colspan="4" style="text-align:center;">No donghua found. Add one to get started.</td>
                             </tr>
                         `;
+                        return;
                     }
+                    
+                    data.forEach(donghua => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${donghua.title}</td>
+                            <td>${donghua.year || 'N/A'}</td>
+                            <td>${donghua.status || 'ongoing'}</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-primary edit-donghua" data-id="${donghua.id}">Edit</button>
+                                <button class="btn btn-danger delete-donghua" data-id="${donghua.id}" data-title="${donghua.title}">Delete</button>
+                            </td>
+                        `;
+                        donghuaTable.appendChild(row);
+                    });
+                    
+                    // Add event listeners to buttons
+                    document.querySelectorAll('.edit-donghua').forEach(button => {
+                        button.addEventListener('click', () => editDonghua(button.getAttribute('data-id')));
+                    });
+                    
+                    document.querySelectorAll('.delete-donghua').forEach(button => {
+                        button.addEventListener('click', () => {
+                            const id = button.getAttribute('data-id');
+                            const title = button.getAttribute('data-title');
+                            if (confirm(`Are you sure you want to delete "${title}"? This will also delete all episodes.`)) {
+                                deleteDonghua(id);
+                            }
+                        });
+                    });
                 } catch (error) {
-                    console.error('Error loading donghua list:', error);
-                    showError('donghuaError', 'Failed to load donghua list. Please try again.');
+                    console.error('Error loading donghua:', error);
+                    showNotification('Failed to load donghua data.', 'error');
+                } finally {
+                    hideLoading();
                 }
-            };
-
-            // Function to edit donghua
-            const editDonghua = async (donghuaId) => {
+            }
+            
+            // Add new donghua button
+            document.getElementById('newDonghuaButton').addEventListener('click', () => {
+                resetDonghuaForm();
+                modalTitle.textContent = 'Add New Donghua';
+                document.getElementById('donghuaId').value = '';
+                donghuaFormModal.style.display = 'block';
+            });
+            
+            // Cancel donghua form
+            document.getElementById('cancelDonghuaButton').addEventListener('click', () => {
+                donghuaFormModal.style.display = 'none';
+            });
+            
+            // Reset donghua form
+            function resetDonghuaForm() {
+                donghuaForm.reset();
+                document.getElementById('donghuaId').value = '';
+                document.getElementById('posterPreview').style.display = 'none';
+                document.getElementById('genreTags').innerHTML = '';
+                document.getElementById('genreValues').value = '';
+            }
+            
+            // Edit donghua
+            async function editDonghua(id) {
+                showLoading();
                 try {
-                    // Get donghua details
                     const { data, error } = await supabase
                         .from('donghua')
                         .select('*')
-                        .eq('id', donghuaId)
+                        .eq('id', id)
                         .single();
-                        
+                    
                     if (error) throw error;
                     
-                    if (data) {
-                        // Set form title
-                        document.getElementById('donghuaFormTitle').textContent = 'Edit Donghua';
-                        
-                        // Fill form fields
-                        document.getElementById('donghuaId').value = data.id;
-                        document.getElementById('donghuaTitle').value = data.title || '';
-                        document.getElementById('donghuaYear').value = data.year || '';
-                        document.getElementById('donghuaStatus').value = data.status || 'ongoing';
-                        document.getElementById('donghuaDescription').value = data.description || '';
-                        document.getElementById('posterUrl').value = data.poster_url || '';
-                        
-                        // Clear existing genre tags and add new ones
-                        const genreContainer = document.getElementById('genresContainer');
-                        const genreTags = genreContainer.querySelectorAll('.tag');
-                        genreTags.forEach(tag => tag.remove());
-                        
-                        if (data.genre && Array.isArray(data.genre)) {
-                            data.genre.forEach(genre => {
-                                addGenreTag(genre);
-                            });
-                        }
-                        
-                        // Show poster preview if available
-                        const posterPreview = document.getElementById('posterPreview');
-                        if (data.poster_url) {
-                            posterPreview.src = data.poster_url;
-                            posterPreview.style.display = 'block';
-                        } else {
-                            posterPreview.style.display = 'none';
-                        }
-                        
-                        // Show the form modal
-                        document.getElementById('donghuaFormModal').style.display = 'flex';
+                    modalTitle.textContent = 'Edit Donghua: ' + data.title;
+                    document.getElementById('donghuaId').value = data.id;
+                    document.getElementById('title').value = data.title;
+                    document.getElementById('year').value = data.year || '';
+                    document.getElementById('status').value = data.status || 'ongoing';
+                    document.getElementById('description').value = data.description || '';
+                    document.getElementById('posterUrl').value = data.poster_url || '';
+                    
+                    // Set genre tags
+                    const genreTags = document.getElementById('genreTags');
+                    genreTags.innerHTML = '';
+                    const genreArray = data.genre || [];
+                    document.getElementById('genreValues').value = JSON.stringify(genreArray);
+                    
+                    genreArray.forEach(genre => {
+                        addGenreTag(genre);
+                    });
+                    
+                    // Show poster preview if available
+                    const posterPreview = document.getElementById('posterPreview');
+                    if (data.poster_url) {
+                        posterPreview.src = data.poster_url;
+                        posterPreview.style.display = 'block';
+                    } else {
+                        posterPreview.style.display = 'none';
                     }
+                    
+                    donghuaFormModal.style.display = 'block';
                 } catch (error) {
                     console.error('Error loading donghua details:', error);
-                    showError('donghuaError', 'Failed to load donghua details. Please try again.');
+                    showNotification('Failed to load donghua details.', 'error');
+                } finally {
+                    hideLoading();
                 }
-            };
-
-            // Function to delete donghua
-            const deleteDonghua = async (donghuaId) => {
+            }
+            
+            // Delete donghua
+            async function deleteDonghua(id) {
+                showLoading();
                 try {
-                    // First delete all episodes for this donghua
+                    // First delete all episodes
                     const { error: episodesError } = await supabase
                         .from('episodes')
                         .delete()
-                        .eq('donghua_id', donghuaId);
-                        
+                        .eq('donghua_id', id);
+                    
                     if (episodesError) throw episodesError;
                     
                     // Then delete the donghua
                     const { error } = await supabase
                         .from('donghua')
                         .delete()
-                        .eq('id', donghuaId);
-                        
+                        .eq('id', id);
+                    
                     if (error) throw error;
                     
-                    showSuccess('donghuaSuccess', 'Donghua deleted successfully!');
-                    loadDonghuaList();
+                    showNotification('Donghua successfully deleted.', 'success');
+                    loadDonghua();
                 } catch (error) {
                     console.error('Error deleting donghua:', error);
-                    showError('donghuaError', 'Failed to delete donghua. Please try again.');
+                    showNotification('Failed to delete donghua.', 'error');
+                } finally {
+                    hideLoading();
                 }
-            };
+            }
             
-            // Handle "Add New Donghua" button
-            const addDonghuaBtn = document.getElementById('addDonghuaBtn');
-            addDonghuaBtn.addEventListener('click', () => {
-                // Reset form
-                document.getElementById('donghuaFormTitle').textContent = 'Add New Donghua';
-                document.getElementById('donghuaForm').reset();
-                document.getElementById('donghuaId').value = '';
+            // Poster URL preview
+            document.getElementById('posterUrl').addEventListener('blur', function() {
+                const url = this.value.trim();
+                const posterPreview = document.getElementById('posterPreview');
                 
-                // Clear genre tags
-                const genreContainer = document.getElementById('genresContainer');
-                const genreTags = genreContainer.querySelectorAll('.tag');
-                genreTags.forEach(tag => tag.remove());
-                
-                // Hide poster preview
-                document.getElementById('posterPreview').style.display = 'none';
-                
-                // Show the form modal
-                document.getElementById('donghuaFormModal').style.display = 'flex';
+                if (url) {
+                    posterPreview.src = url;
+                    posterPreview.onload = function() {
+                        posterPreview.style.display = 'block';
+                    };
+                    posterPreview.onerror = function() {
+                        posterPreview.style.display = 'none';
+                        showNotification('Invalid image URL.', 'error');
+                    };
+                } else {
+                    posterPreview.style.display = 'none';
+                }
             });
             
+            // Genre tags handling
+            const genreInput = document.getElementById('genreInput');
+            
+            genreInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    const genre = this.value.trim();
+                    
+                    if (genre) {
+                        addGenreTag(genre);
+                        this.value = '';
+                        updateGenreValues();
+                    }
+                }
+            });
+            
+            function addGenreTag(genre) {
+                const tagsContainer = document.getElementById('genreTags');
+                const tag = document.createElement('span');
+                tag.className = 'tag';
+                tag.innerHTML = `${genre} <span class="tag-remove">&times;</span>`;
+                
+                tag.querySelector('.tag-remove').addEventListener('click', function() {
+                    tag.remove();
+                    updateGenreValues();
+                });
+                
+                tagsContainer.appendChild(tag);
+            }
+            
+            function updateGenreValues() {
+                const tags = Array.from(document.getElementById('genreTags').children).map(tag => {
+                    // Extract the text without the "×" symbol
+                    return tag.textContent.trim().replace('×', '').trim();
+                });
+                document.getElementById('genreValues').value = JSON.stringify(tags);
+            }
+            
             // Handle donghua form submission
-            const donghuaForm = document.getElementById('donghuaForm');
-            donghuaForm.addEventListener('submit', async (e) => {
+            donghuaForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
+                showLoading();
                 
-                // Get form values
-                const donghuaId = document.getElementById('donghuaId').value;
-                const title = document.getElementById('donghuaTitle').value;
-                const year = document.getElementById('donghuaYear').value;
-                const status = document.getElementById('donghuaStatus').value;
-                const description = document.getElementById('donghuaDescription').value;
+                const id = document.getElementById('donghuaId').value;
+                const title = document.getElementById('title').value;
+                const year = document.getElementById('year').value;
+                const status = document.getElementById('status').value;
+                const description = document.getElementById('description').value;
                 const posterUrl = document.getElementById('posterUrl').value;
+                const genreValues = document.getElementById('genreValues').value;
                 
-                // Get genres from tags
-                const genreTags = document.querySelectorAll('.tag');
-                const genres = Array.from(genreTags).map(tag => tag.textContent.replace('×', '').trim());
-                
-                // Prepare data object
                 const donghuaData = {
                     title,
                     year: year ? parseInt(year) : null,
                     status,
                     description,
                     poster_url: posterUrl,
-                    genre: genres.length > 0 ? genres : null,
-                    updated_at: new Date()
+                    genre: genreValues ? JSON.parse(genreValues) : []
                 };
                 
                 try {
                     let result;
                     
-                    if (donghuaId) {
+                    if (id) {
                         // Update existing donghua
                         result = await supabase
                             .from('donghua')
                             .update(donghuaData)
-                            .eq('id', donghuaId);
+                            .eq('id', id);
                     } else {
-                        // Insert new donghua
+                        // Create new donghua
                         result = await supabase
                             .from('donghua')
-                            .insert(donghuaData);
+                            .insert([donghuaData]);
                     }
                     
-                    const { error } = result;
-                    if (error) throw error;
+                    if (result.error) throw result.error;
                     
-                    // Upload poster file if selected
-                    const posterFile = document.getElementById('posterFile').files[0];
-                    if (posterFile) {
-                        // TODO: Implement file upload to Supabase storage
-                    }
-                    
-                    // Show success message
-                    showSuccess('donghuaSuccess', `Donghua ${donghuaId ? 'updated' : 'added'} successfully!`);
-                    
-                    // Hide the modal
-                    document.getElementById('donghuaFormModal').style.display = 'none';
-                    
-                    // Reload donghua list
-                    loadDonghuaList();
+                    showNotification(id ? 'Donghua updated successfully.' : 'New donghua added successfully.', 'success');
+                    donghuaFormModal.style.display = 'none';
+                    loadDonghua();
                 } catch (error) {
                     console.error('Error saving donghua:', error);
-                    showError('donghuaError', `Failed to ${donghuaId ? 'update' : 'add'} donghua. Please try again.`);
-                }
-            });
-
-            // Genre tags functionality
-            const genresInput = document.getElementById('genresInput');
-            genresInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ',') {
-                    e.preventDefault();
-                    const genre = genresInput.value.trim();
-                    if (genre) {
-                        addGenreTag(genre);
-                        genresInput.value = '';
-                    }
+                    showNotification('Failed to save donghua.', 'error');
+                } finally {
+                    hideLoading();
                 }
             });
             
-            // Function to add genre tag
-            function addGenreTag(genre) {
-                const genresContainer = document.getElementById('genresContainer');
-                const tag = document.createElement('div');
-                tag.className = 'tag';
-                tag.innerHTML = `${genre}<span class="tag-close">&times;</span>`;
-                
-                tag.querySelector('.tag-close').addEventListener('click', () => {
-                    tag.remove();
-                });
-                
-                genresContainer.insertBefore(tag, genresInput);
-            }
-
-            // Load episodes list
-            const loadEpisodesList = async () => {
-                try {
-                    const { data, error } = await supabase
-                        .from('episodes')
-                        .select(`
-                            *,
-                            donghua:donghua_id (
-                                title
-                            )
-                        `)
-                        .order('donghua_id')
-                        .order('episode_number');
-                        
-                    if (error) throw error;
-                    
-                    const episodesTable = document.getElementById('episodesTable');
-                    
-                    if (data && data.length > 0) {
-                        let html = '';
-                        
-                        data.forEach(episode => {
-                            html += `
-                                <tr>
-                                    <td>${episode.donghua ? episode.donghua.title : 'Unknown'}</td>
-                                    <td>${episode.episode_number}</td>
-                                    <td>${episode.title}</td>
-                                    <td>${episode.duration ? `${episode.duration} min` : 'N/A'}</td>
-                                    <td>
-                                        <span class="status-badge ${episode.is_premium ? 'status-active' : ''}">
-                                            ${episode.is_premium ? 'VIP Only' : 'Free'}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <button class="action-btn view-btn" data-id="${episode.id}">
-                                                <i class="fas fa-eye"></i> View
-                                            </button>
-                                            <button class="action-btn edit-btn edit-episode-btn" data-id="${episode.id}">
-                                                <i class="fas fa-edit"></i> Edit
-                                            </button>
-                                            <button class="action-btn delete-btn delete-episode-btn" data-id="${episode.id}">
-                                                <i class="fas fa-trash"></i> Delete
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            `;
-                        });
-                        
-                        episodesTable.innerHTML = html;
-                        
-                        // Set up edit buttons
-                        document.querySelectorAll('.edit-episode-btn').forEach(btn => {
-                            btn.addEventListener('click', () => {
-                                const episodeId = btn.getAttribute('data-id');
-                                editEpisode(episodeId);
-                            });
-                        });
-                        
-                        // Set up delete buttons
-                        document.querySelectorAll('.delete-episode-btn').forEach(btn => {
-                            btn.addEventListener('click', () => {
-                                const episodeId = btn.getAttribute('data-id');
-                                if (confirm('Are you sure you want to delete this episode?')) {
-                                    deleteEpisode(episodeId);
-                                }
-                            });
-                        });
-                    } else {
-                        episodesTable.innerHTML = `
-                            <tr>
-                                <td colspan="6" style="text-align: center;">No episodes found. Add your first one!</td>
-                            </tr>
-                        `;
-                    }
-                } catch (error) {
-                    console.error('Error loading episodes list:', error);
-                    showError('episodeError', 'Failed to load episodes list. Please try again.');
-                }
-            };
-
-            // Load donghua for dropdown
-            const loadDonghuaDropdown = async () => {
+            // Episode Management
+            async function loadDonghuaForSelect() {
+                showLoading();
                 try {
                     const { data, error } = await supabase
                         .from('donghua')
                         .select('id, title')
-                        .order('title');
-                        
+                        .order('title', { ascending: true });
+                    
                     if (error) throw error;
                     
-                    const donghuaFilter = document.getElementById('donghuaFilter');
-                    const episodeDonghua = document.getElementById('episodeDonghua');
+                    // Clear previous options except the default one
+                    donghuaSelect.innerHTML = '<option value="">-- Select Donghua --</option>';
                     
-                    if (data && data.length > 0) {
-                        let filterHtml = '<option value="">All Donghua</option>';
-                        let selectHtml = '<option value="">Select Donghua</option>';
-                        
-                        data.forEach(donghua => {
-                            filterHtml += `<option value="${donghua.id}">${donghua.title}</option>`;
-                            selectHtml += `<option value="${donghua.id}">${donghua.title}</option>`;
-                        });
-                        
-                        donghuaFilter.innerHTML = filterHtml;
-                        episodeDonghua.innerHTML = selectHtml;
-                    } else {
-                        donghuaFilter.innerHTML = '<option value="">No Donghua Available</option>';
-                        episodeDonghua.innerHTML = '<option value="">No Donghua Available</option>';
-                    }
+                    data.forEach(donghua => {
+                        const option = document.createElement('option');
+                        option.value = donghua.id;
+                        option.textContent = donghua.title;
+                        donghuaSelect.appendChild(option);
+                    });
                 } catch (error) {
-                    console.error('Error loading donghua for dropdown:', error);
+                    console.error('Error loading donghua list:', error);
+                    showNotification('Failed to load donghua list.', 'error');
+                } finally {
+                    hideLoading();
                 }
-            };
-
-            // Function to edit episode
-            const editEpisode = async (episodeId) => {
+            }
+            
+            // Load episodes when donghua is selected
+            donghuaSelect.addEventListener('change', function() {
+                const donghuaId = this.value;
+                
+                if (donghuaId) {
+                    loadEpisodes(donghuaId);
+                    addEpisodeButton.style.display = 'block';
+                } else {
+                    episodesTable.style.display = 'none';
+                    addEpisodeButton.style.display = 'none';
+                }
+            });
+            
+            async function loadEpisodes(donghuaId) {
+                showLoading();
                 try {
-                    // Get episode details
                     const { data, error } = await supabase
                         .from('episodes')
                         .select('*')
-                        .eq('id', episodeId)
-                        .single();
-                        
+                        .eq('donghua_id', donghuaId)
+                        .order('episode_number', { ascending: true });
+                    
                     if (error) throw error;
                     
-                    if (data) {
-                        // Set form title
-                        document.getElementById('episodeFormTitle').textContent = 'Edit Episode';
+                    const tbody = episodesTable.querySelector('tbody');
+                    tbody.innerHTML = '';
+                    
+                    if (data.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="5" style="text-align:center;">No episodes found. Add one to get started.</td>
+                            </tr>
+                        `;
+                    } else {
+                        data.forEach(episode => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${episode.episode_number}</td>
+                                <td>${episode.title}</td>
+                                <td>${episode.duration || 'N/A'} min</td>
+                                <td>${episode.is_premium ? 'Yes' : 'No'}</td>
+                                <td class="action-buttons">
+                                    <button class="btn btn-primary edit-episode" data-id="${episode.id}">Edit</button>
+                                    <button class="btn btn-danger delete-episode" data-id="${episode.id}">Delete</button>
+                                </td>
+                            `;
+                            tbody.appendChild(row);
+                        });
                         
-                        // Fill form fields
-                        document.getElementById('episodeId').value = data.id;
-                        document.getElementById('episodeDonghua').value = data.donghua_id || '';
-                        document.getElementById('episodeNumber').value = data.episode_number || '';
-                        document.getElementById('episodeDuration').value = data.duration || '';
-                        document.getElementById('episodeTitle').value = data.title || '';
-                        document.getElementById('thumbnailUrl').value = data.thumbnail_url || '';
-                        document.getElementById('videoUrl').value = data.video_url || '';
-                        document.getElementById('isPremium').checked = data.is_premium || false;
+                        // Add event listeners to buttons
+                        document.querySelectorAll('.edit-episode').forEach(button => {
+                            button.addEventListener('click', () => editEpisode(button.getAttribute('data-id')));
+                        });
                         
-                        // Show thumbnail preview if available
-                        const thumbnailPreview = document.getElementById('thumbnailPreview');
-                        if (data.thumbnail_url) {
-                            thumbnailPreview.src = data.thumbnail_url;
-                            thumbnailPreview.style.display = 'block';
-                        } else {
-                            thumbnailPreview.style.display = 'none';
-                        }
-                        
-                        // Show the form modal
-                        document.getElementById('episodeFormModal').style.display = 'flex';
+                        document.querySelectorAll('.delete-episode').forEach(button => {
+                            button.addEventListener('click', () => {
+                                const id = button.getAttribute('data-id');
+                                if (confirm('Are you sure you want to delete this episode?')) {
+                                    deleteEpisode(id);
+                                }
+                            });
+                        });
                     }
+                    
+                    episodesTable.style.display = 'table';
+                } catch (error) {
+                    console.error('Error loading episodes:', error);
+                    showNotification('Failed to load episodes.', 'error');
+                } finally {
+                    hideLoading();
+                }
+            }
+            
+            // Add new episode button
+            addEpisodeButton.addEventListener('click', () => {
+                resetEpisodeForm();
+                document.getElementById('episodeModalTitle').textContent = 'Add New Episode';
+                document.getElementById('episodeId').value = '';
+                document.getElementById('episodeDonghuaId').value = donghuaSelect.value;
+                episodeFormModal.style.display = 'block';
+            });
+            
+            // Cancel episode form
+            document.getElementById('cancelEpisodeButton').addEventListener('click', () => {
+                episodeFormModal.style.display = 'none';
+            });
+            
+            // Reset episode form
+            function resetEpisodeForm() {
+                episodeForm.reset();
+                document.getElementById('episodeId').value = '';
+                document.getElementById('thumbnailPreview').style.display = 'none';
+            }
+            
+            // Edit episode
+            async function editEpisode(id) {
+                showLoading();
+                try {
+                    const { data, error } = await supabase
+                        .from('episodes')
+                        .select('*')
+                        .eq('id', id)
+                        .single();
+                    
+                    if (error) throw error;
+                    
+                    document.getElementById('episodeModalTitle').textContent = 'Edit Episode';
+                    document.getElementById('episodeId').value = data.id;
+                    document.getElementById('episodeDonghuaId').value = data.donghua_id;
+                    document.getElementById('episodeNumber').value = data.episode_number;
+                    document.getElementById('episodeTitle').value = data.title;
+                    document.getElementById('duration').value = data.duration || '';
+                    document.getElementById('isPremium').value = data.is_premium.toString();
+                    document.getElementById('videoUrl').value = data.video_url;
+                    document.getElementById('thumbnailUrl').value = data.thumbnail_url || '';
+                    
+                    // Show thumbnail preview if available
+                    const thumbnailPreview = document.getElementById('thumbnailPreview');
+                    if (data.thumbnail_url) {
+                        thumbnailPreview.src = data.thumbnail_url;
+                        thumbnailPreview.style.display = 'block';
+                    } else {
+                        thumbnailPreview.style.display = 'none';
+                    }
+                    
+                    episodeFormModal.style.display = 'block';
                 } catch (error) {
                     console.error('Error loading episode details:', error);
-                    showError('episodeError', 'Failed to load episode details. Please try again.');
+                    showNotification('Failed to load episode details.', 'error');
+                } finally {
+                    hideLoading();
                 }
-            };
-
-            // Function to delete episode
-            const deleteEpisode = async (episodeId) => {
+            }
+            
+            // Delete episode
+            async function deleteEpisode(id) {
+                showLoading();
                 try {
+                    // First delete any history records associated with this episode
+                    const { error: historyError } = await supabase
+                        .from('history')
+                        .delete()
+                        .eq('episode_id', id);
+                    
+                    if (historyError) throw historyError;
+                    
+                    // Then delete the episode
                     const { error } = await supabase
                         .from('episodes')
                         .delete()
-                        .eq('id', episodeId);
-                        
+                        .eq('id', id);
+                    
                     if (error) throw error;
                     
-                    showSuccess('episodeSuccess', 'Episode deleted successfully!');
-                    loadEpisodesList();
+                    showNotification('Episode successfully deleted.', 'success');
+                    loadEpisodes(donghuaSelect.value);
                 } catch (error) {
                     console.error('Error deleting episode:', error);
-                    showError('episodeError', 'Failed to delete episode. Please try again.');
+                    showNotification('Failed to delete episode.', 'error');
+                } finally {
+                    hideLoading();
                 }
-            };
+            }
             
-            // Handle "Add New Episode" button
-            const addEpisodeBtn = document.getElementById('addEpisodeBtn');
-            addEpisodeBtn.addEventListener('click', () => {
-                // Reset form
-                document.getElementById('episodeFormTitle').textContent = 'Add New Episode';
-                document.getElementById('episodeForm').reset();
-                document.getElementById('episodeId').value = '';
+            // Thumbnail URL preview
+            document.getElementById('thumbnailUrl').addEventListener('blur', function() {
+                const url = this.value.trim();
+                const thumbnailPreview = document.getElementById('thumbnailPreview');
                 
-                // Hide thumbnail preview
-                document.getElementById('thumbnailPreview').style.display = 'none';
-                
-                // Show the form modal
-                document.getElementById('episodeFormModal').style.display = 'flex';
+                if (url) {
+                    thumbnailPreview.src = url;
+                    thumbnailPreview.onload = function() {
+                        thumbnailPreview.style.display = 'block';
+                    };
+                    thumbnailPreview.onerror = function() {
+                        thumbnailPreview.style.display = 'none';
+                        showNotification('Invalid image URL.', 'error');
+                    };
+                } else {
+                    thumbnailPreview.style.display = 'none';
+                }
             });
             
             // Handle episode form submission
-            const episodeForm = document.getElementById('episodeForm');
-            episodeForm.addEventListener('submit', async (e) => {
+            episodeForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
+                showLoading();
                 
-                // Get form values
-                const episodeId = document.getElementById('episodeId').value;
-                const donghuaId = document.getElementById('episodeDonghua').value;
+                const id = document.getElementById('episodeId').value;
+                const donghuaId = document.getElementById('episodeDonghuaId').value;
                 const episodeNumber = document.getElementById('episodeNumber').value;
-                const duration = document.getElementById('episodeDuration').value;
                 const title = document.getElementById('episodeTitle').value;
-                const thumbnailUrl = document.getElementById('thumbnailUrl').value;
+                const duration = document.getElementById('duration').value;
+                const isPremium = document.getElementById('isPremium').value === 'true';
                 const videoUrl = document.getElementById('videoUrl').value;
-                const isPremium = document.getElementById('isPremium').checked;
+                const thumbnailUrl = document.getElementById('thumbnailUrl').value;
                 
-                // Validate form
-                if (!donghuaId) {
-                    showError('episodeError', 'Please select a donghua.');
-                    return;
-                }
-                
-                // Prepare data object
                 const episodeData = {
                     donghua_id: donghuaId,
                     episode_number: parseInt(episodeNumber),
-                    duration: duration ? parseInt(duration) : null,
                     title,
-                    thumbnail_url: thumbnailUrl,
-                    video_url: videoUrl,
+                    duration: duration ? parseInt(duration) : null,
                     is_premium: isPremium,
-                    updated_at: new Date()
+                    video_url: videoUrl,
+                    thumbnail_url: thumbnailUrl || null
                 };
                 
                 try {
                     let result;
                     
-                    if (episodeId) {
+                    if (id) {
                         // Update existing episode
                         result = await supabase
                             .from('episodes')
                             .update(episodeData)
-                            .eq('id', episodeId);
+                            .eq('id', id);
                     } else {
-                        // Insert new episode
+                        // Create new episode
                         result = await supabase
                             .from('episodes')
-                            .insert(episodeData);
+                            .insert([episodeData]);
                     }
                     
-                    const { error } = result;
-                    if (error) throw error;
+                    if (result.error) throw result.error;
                     
-                    // Upload thumbnail file if selected
-                    const thumbnailFile = document.getElementById('thumbnailFile').files[0];
-                    if (thumbnailFile) {
-                        // TODO: Implement file upload to Supabase storage
-                    }
-                    
-                    // Show success message
-                    showSuccess('episodeSuccess', `Episode ${episodeId ? 'updated' : 'added'} successfully!`);
-                    
-                    // Hide the modal
-                    document.getElementById('episodeFormModal').style.display = 'none';
-                    
-                    // Reload episodes list
-                    loadEpisodesList();
+                    showNotification(id ? 'Episode updated successfully.' : 'New episode added successfully.', 'success');
+                    episodeFormModal.style.display = 'none';
+                    loadEpisodes(donghuaId);
                 } catch (error) {
                     console.error('Error saving episode:', error);
-                    showError('episodeError', `Failed to ${episodeId ? 'update' : 'add'} episode. Please try again.`);
+                    showNotification('Failed to save episode.', 'error');
+                } finally {
+                    hideLoading();
                 }
             });
-
-            // Load users list
-            const loadUsersList = async () => {
+            
+            // Users Management
+            async function loadUsers() {
+                showLoading();
                 try {
-                    // Get users from auth schema with their profile data
-                    const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
-                    
-                    if (authError) throw authError;
-                    
-                    // Get users from users table
-                    const { data: profileUsers, error: profileError } = await supabase
+                    const { data, error } = await supabase
                         .from('users')
-                        .select('*');
-                        
-                    if (profileError) throw profileError;
+                        .select('*')
+                        .order('created_at', { ascending: false });
                     
-                    // Get admins
-                    const { data: admins, error: adminsError } = await supabase
-                        .from('admins')
-                        .select('user_id');
-                        
-                    if (adminsError) throw adminsError;
+                    if (error) throw error;
                     
-                    // Get VIP users
-                    const { data: vipUsers, error: vipError } = await supabase
-                        .from('vip_users')
-                        .select('user_id, subscription_end');
-                        
-                    if (vipError) throw vipError;
+                    const tbody = document.getElementById('usersTable').querySelector('tbody');
+                    tbody.innerHTML = '';
                     
-                    const adminUserIds = admins ? admins.map(admin => admin.user_id) : [];
-                    const vipUserMap = {};
-                    if (vipUsers) {
-                        vipUsers.forEach(vip => {
-                            vipUserMap[vip.user_id] = vip.subscription_end;
-                        });
-                    }
-                    
-                    const usersTable = document.getElementById('usersTable');
-                    
-                    if (authUsers && authUsers.users.length > 0) {
-                        let html = '';
-                        
-                        authUsers.users.forEach(user => {
-                            const profile = profileUsers ? profileUsers.find(p => p.user_id === user.id) : null;
-                            const isAdmin = adminUserIds.includes(user.id);
-                            const isVip = user.id in vipUserMap;
-                            const vipExpired = isVip && new Date(vipUserMap[user.id]) < new Date();
-                            
-                            let role = 'User';
-                            if (isAdmin) role = 'Admin';
-                            else if (isVip && !vipExpired) role = 'VIP';
-                            else if (vipExpired) role = 'VIP (Expired)';
-                            
-                            const joinedDate = new Date(user.created_at);
-                            
-                            html += `
-                                <tr>
-                                    <td>${user.user_metadata.name || profile?.name || 'N/A'}</td>
-                                    <td>${user.email}</td>
-                                    <td>
-                                        <span class="status-badge status-active">
-                                            Active
-                                        </span>
-                                    </td>
-                                    <td>${role}</td>
-                                    <td>${joinedDate.toLocaleDateString()}</td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <button class="action-btn edit-btn edit-user-btn" data-id="${user.id}">
-                                                <i class="fas fa-edit"></i> Edit
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            `;
-                        });
-                        
-                        usersTable.innerHTML = html;
-                        
-                        // Set up edit buttons
-                        document.querySelectorAll('.edit-user-btn').forEach(btn => {
-                            btn.addEventListener('click', () => {
-                                const userId = btn.getAttribute('data-id');
-                                editUser(userId);
-                            });
-                        });
-                    } else {
-                        usersTable.innerHTML = `
+                    if (data.length === 0) {
+                        tbody.innerHTML = `
                             <tr>
-                                <td colspan="6" style="text-align: center;">No users found.</td>
+                                <td colspan="5" style="text-align:center;">No users found.</td>
                             </tr>
                         `;
+                        return;
                     }
-                } catch (error) {
-                    console.error('Error loading users list:', error);
-                    showError('userError', 'Failed to load users list. Please try again.');
-                }
-            };
-
-            // Function to show success messages
-            function showSuccess(alertId, message) {
-                const alert = document.getElementById(`${alertId}Alert`);
-                const messageEl = document.getElementById(`${alertId}Message`);
-                
-                messageEl.textContent = message;
-                alert.style.display = 'flex';
-                
-                // Auto-hide after 3 seconds
-                setTimeout(() => {
-                    alert.style.display = 'none';
-                }, 3000);
-            }
-            
-            // Function to show error messages
-            function showError(alertId, message) {
-                const alert = document.getElementById(`${alertId}ErrorAlert`);
-                const messageEl = document.getElementById(`${alertId}ErrorMessage`);
-                
-                messageEl.textContent = message;
-                alert.style.display = 'flex';
-            }
-            
-            // File upload preview
-            document.getElementById('posterFile').addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const preview = document.getElementById('posterPreview');
-                        preview.src = e.target.result;
-                        preview.style.display = 'block';
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-            
-            document.getElementById('thumbnailFile').addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const preview = document.getElementById('thumbnailPreview');
-                        preview.src = e.target.result;
-                        preview.style.display = 'block';
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-            
-            // Search functionality for donghua
-            document.getElementById('donghuaSearch').addEventListener('input', (e) => {
-                const searchTerm = e.target.value.toLowerCase();
-                const rows = document.querySelectorAll('#donghuaTable tr');
-                
-                rows.forEach(row => {
-                    const title = row.querySelector('td:first-child span').textContent.toLowerCase();
-                    if (title.includes(searchTerm)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
-            
-            // Filter by status for donghua
-            document.getElementById('donghuaStatusFilter').addEventListener('change', (e) => {
-                const status = e.target.value.toLowerCase();
-                const rows = document.querySelectorAll('#donghuaTable tr');
-                
-                rows.forEach(row => {
-                    const rowStatus = row.querySelector('td:nth-child(3) span').textContent.trim().toLowerCase();
-                    if (!status || rowStatus === status) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
-            
-            // Search functionality for episodes
-            document.getElementById('episodeSearch').addEventListener('input', (e) => {
-                const searchTerm = e.target.value.toLowerCase();
-                const rows = document.querySelectorAll('#episodesTable tr');
-                
-                rows.forEach(row => {
-                    const donghua = row.querySelector('td:first-child').textContent.toLowerCase();
-                    const title = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
-                    if (donghua.includes(searchTerm) || title.includes(searchTerm)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
-            
-            // Filter by donghua for episodes
-            document.getElementById('donghuaFilter').addEventListener('change', (e) => {
-                const donghuaId = e.target.value;
-                const rows = document.querySelectorAll('#episodesTable tr');
-                
-                if (!donghuaId) {
-                    rows.forEach(row => {
-                        row.style.display = '';
+                    
+                    // Check which users are VIP
+                    const { data: vipUsers, error: vipError } = await supabase
+                        .from('vip_users')
+                        .select('user_id');
+                    
+                    if (vipError) throw vipError;
+                    
+                    const vipUserIds = vipUsers.map(vip => vip.user_id);
+                    
+                    data.forEach(user => {
+                        const row = document.createElement('tr');
+                        const isVip = vipUserIds.includes(user.user_id);
+                        
+                        row.innerHTML = `
+                            <td>${user.name || 'N/A'}</td>
+                            <td>${user.email || 'N/A'}</td>
+                            <td>${isVip ? 'VIP' : user.status}</td>
+                            <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                            <td class="action-buttons">
+                                <button class="btn ${isVip ? 'btn-danger remove-vip' : 'btn-primary make-vip'}" data-id="${user.user_id}">
+                                    ${isVip ? 'Remove VIP' : 'Make VIP'}
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
                     });
-                    return;
+                    
+                    // Add event listeners to buttons
+                    document.querySelectorAll('.make-vip').forEach(button => {
+                        button.addEventListener('click', () => makeUserVip(button.getAttribute('data-id')));
+                    });
+                    
+                    document.querySelectorAll('.remove-vip').forEach(button => {
+                        button.addEventListener('click', () => removeUserVip(button.getAttribute('data-id')));
+                    });
+                } catch (error) {
+                    console.error('Error loading users:', error);
+                    showNotification('Failed to load users.', 'error');
+                } finally {
+                    hideLoading();
                 }
-                
-                rows.forEach(row => {
-                    const cellDonghuaId = row.querySelector('.edit-episode-btn')?.getAttribute('data-donghua-id');
-                    if (cellDonghuaId === donghuaId) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
+            }
+            
+            // Make a user VIP
+            async function makeUserVip(userId) {
+                showLoading();
+                try {
+                    // Get user details
+                    const { data: userData, error: userError } = await supabase
+                        .from('users')
+                        .select('*')
+                        .eq('user_id', userId)
+                        .single();
+                    
+                    if (userError) throw userError;
+                    
+                    // Create VIP entry
+                    const { error } = await supabase
+                        .from('vip_users')
+                        .insert([{
+                            user_id: userId,
+                            name: userData.name,
+                            email: userData.email,
+                            subscription_start: new Date().toISOString(),
+                            subscription_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days from now
+                        }]);
+                    
+                    if (error) throw error;
+                    
+                    showNotification('User has been granted VIP status.', 'success');
+                    loadUsers();
+                } catch (error) {
+                    console.error('Error making user VIP:', error);
+                    showNotification('Failed to update user status.', 'error');
+                } finally {
+                    hideLoading();
+                }
+            }
+            
+            // Remove VIP status from user
+            async function removeUserVip(userId) {
+                showLoading();
+                try {
+                    const { error } = await supabase
+                        .from('vip_users')
+                        .delete()
+                        .eq('user_id', userId);
+                    
+                    if (error) throw error;
+                    
+                    showNotification('VIP status removed from user.', 'success');
+                    loadUsers();
+                } catch (error) {
+                    console.error('Error removing VIP status:', error);
+                    showNotification('Failed to update user status.', 'error');
+                } finally {
+                    hideLoading();
+                }
+            }
+            
+            // Logout button
+            document.getElementById('adminLogoutButton').addEventListener('click', async () => {
+                await supabase.auth.signOut();
+                window.location.href = 'login-admin.html';
             });
             
-            // Load initial data
-            loadDashboardStats();
-            loadDonghuaList();
-            loadEpisodesList();
-            loadDonghuaDropdown();
-            loadUsersList();
+            // Supabase createClient wrapper to avoid conflicts with global supabase variable
+            function supabaseCreateClient(url, key) {
+                return window.supabase.createClient(url, key);
+            }
+            
+            // Check authentication and load initial data
+            checkAdminAuth().then(isAdmin => {
+                if (isAdmin) {
+                    loadDonghua();
+                }
+            });
         });
     </script>
 </body>
